@@ -3,19 +3,25 @@ import functools
 import numpy as np
 from PyQt5 import QtWidgets, QtGui, QtCore
 from .TicTacToe import TicTacToe
-from .players import Human, Monkey, MinMax, MinMaxSim
+from .players import Human, Monkey, MinMax, MinMaxSim, AlphaBeta, AlphaBetaSim
 
 
-REGISTER_PLAYER_TYPES = (Human, Monkey, MinMax, MinMaxSim)
+REGISTER_PLAYER_TYPES = (
+    Human, Monkey, MinMax, MinMaxSim, AlphaBeta, AlphaBetaSim
+)
 
 PLAYERS = {
     'Human': Human(),
     'Monkey': Monkey(),
     'MM2': MinMax(n_depth=2),
     'MM4': MinMax(n_depth=4),
+    'MM6': MinMax(n_depth=6),
+    'MMS2.10': MinMaxSim(n_depth=2, n_sim=20),
     'MMS2.20': MinMaxSim(n_depth=2, n_sim=20),
-    'MMS2.50': MinMaxSim(n_depth=2, n_sim=50),
     'MMS4.01': MinMaxSim(n_depth=4, n_sim=1),
+    'MMS4.05': MinMaxSim(n_depth=4, n_sim=5),
+    'AB6': AlphaBeta(n_depth=6),
+    'ABS2.10': AlphaBetaSim(n_depth=2, n_sim=20),
 }
 
 

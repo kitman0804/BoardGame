@@ -11,14 +11,14 @@ class MinMax(Player):
         self._silent = silent
     
     def decide(self, game):
-        gt = GameTree(game=game)
-        gt.expand(depth=self._n_depth)
+        tree = GameTree('current', game=game)
+        tree.minmax(depth=self._n_depth)
         if not self._silent:
             print(game.turn, 'root:', gt.root.game.turn_player)
-            gt.show()
-        move_reward = [(child.name, child.reward) for child in gt.root.children]
-        move_reward.sort(key=lambda x: x[1])
-        moves = [m for m, r in move_reward if r == move_reward[-1][1]]
+            tree.show()
+        moves_reward = [(child.name, child.reward) for child in tree.children]
+        moves_reward.sort(key=lambda x: x[1])
+        moves = [m for m, r in moves_reward if r == moves_reward[-1][1]]
         move = moves[np.random.choice(range(len(moves)))]
         return move
     

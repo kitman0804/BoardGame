@@ -9,8 +9,8 @@ class Monkey(Player):
         self._silent = silent
     
     def decide(self, game):
-        possible_move = game.gameboard.available_moves
-        move = possible_move[np.random.choice(len(possible_move))]
+        available_moves = game.gameboard.available_moves
+        move = available_moves[np.random.choice(len(available_moves))]
         return move
     
     def decide_ui(self, game_ui):
