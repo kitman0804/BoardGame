@@ -42,9 +42,6 @@ class GameBoard(object):
     def put(self, row, col, player):
         self._gameboard[row, col] = player
     
-    def clean(self):
-        self._gameboard = -np.ones(shape=self.shape, dtype=int)
-    
     def reset(self):
         self._gameboard = -np.ones(shape=self.shape, dtype=int)
     

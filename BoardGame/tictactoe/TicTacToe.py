@@ -1,15 +1,16 @@
-from copy import deepcopy
 import numpy as np
 from ..BoardGame import BoardGame
 from .GameBoard import GameBoard
-from .players import Player, Human
+from ..players import Player, Human
 
 
 class TicTacToe(BoardGame):
+    category='m,n,k-game'
     m, n, k = 3, 3, 3
+    n_players = 2
     
     def __init__(self):
-        super().__init__(category='m,n,k-game', n_players=2)
+        super().__init__()
         self._player0 = Human(name='Player 0')
         self._player1 = Human(name='Player 1')
         self._gameboard = GameBoard()
@@ -39,27 +40,8 @@ class TicTacToe(BoardGame):
         return (self._player0, self._player1)
     
     @property
-    def gameboard(self):
-        return self._gameboard
-    
-    @property
-    def turn(self):
-        return self._turn
-    
-    @property
     def turn_player(self):
         return self._turn % 2
-    
-    @property
-    def winner(self):
-        return self._winner
-    
-    @property
-    def is_ended(self):
-        return self._winner is not None
-    
-    def copy(self):
-        return deepcopy(self)
     
     def find_winner(self, row=None, col=None):
         who = self._turn % 2

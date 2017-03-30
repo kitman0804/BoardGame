@@ -1,14 +1,32 @@
+from copy import deepcopy
+
+
 class BoardGame(object):
-    def __init__(self, category='', n_players=None):
-        self._category = ''
-        self._n_players = n_players
+    category = ''
+    n_players = None
+    
+    def __init__(self):
+        self._players = []
+        self._gameboard = None
         self.available_moves = ()
+        self._turn = None
         self._winner = None
     
     @property
-    def category(self):
-        return self._category
+    def gameboard(self):
+        return self._gameboard
     
     @property
-    def n_players(self):
-        return self._n_players
+    def turn(self):
+        return self._turn
+    
+    @property
+    def winner(self):
+        return self._winner
+    
+    @property
+    def is_ended(self):
+        return self._winner is not None or self._turn is None
+    
+    def copy(self):
+        return deepcopy(self)

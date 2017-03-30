@@ -1,5 +1,5 @@
 import numpy as np
-from ...Player import Player
+from ..Player import Player
 
 
 class Monkey(Player):
