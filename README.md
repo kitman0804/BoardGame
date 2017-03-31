@@ -25,7 +25,10 @@ Required packages:
 
 3. Go to the directory where you downloaded the folder.
 
-4. Run `python -m play_ui tictactoe`.
+4. Run `python -m play_ui the_game_shown_below`.
+
+    - tictactoe
+    - connectfour
 
 5. Have fun!
 

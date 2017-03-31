@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QApplication, qApp,
     QSizePolicy)
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTimer, QSize
-from .TicTacToe import TicTacToe
+from .ConnectFour import ConnectFour
 from ..players import Human, Monkey, MinMax, MinMaxSim, AlphaBeta, AlphaBetaSim
 
 
@@ -19,23 +19,49 @@ REGISTER_PLAYER_TYPES = (
 PLAYERS = {
     'Human': Human(),
     'Monkey': Monkey(),
-    'Robot-MM2': MinMax(n_depth=2),
     'Robot-MM4': MinMax(n_depth=4),
     'Robot-MM6': MinMax(n_depth=6),
-    'Robot-MMS2.10': MinMaxSim(n_depth=2, n_sim=10),
     'Robot-MMS2.20': MinMaxSim(n_depth=2, n_sim=20),
-    'Robot-MMS4.01': MinMaxSim(n_depth=4, n_sim=1),
     'Robot-MMS4.05': MinMaxSim(n_depth=4, n_sim=5),
     'Robot-AB6': AlphaBeta(n_depth=6),
     'Robot-ABS2.20': AlphaBetaSim(n_depth=2, n_sim=20),
 }
 
 
-class TicTacToeUIButton(QPushButton):
+class ColumnButton(QPushButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setMinimumSize(50, 50)
+        self.setIconSize(QSize(32, 32))
+        self.setIcon(QIcon('icons/down-arrow.svg'))
+        size_policy = QSizePolicy(
+            QSizePolicy.Preferred,
+            QSizePolicy.Preferred
+        )
+        size_policy.setHeightForWidth(True)
+        self.setSizePolicy(size_policy)
+        self.click_count = 0
+        self.clicked.connect(self.count)
+    
+    def heightForWidth(self, width):
+        return width
+    
+    def count(self):
+        self.click_count += 1
+        if self.click_count > 6:
+            self.setIcon(QIcon(''))
+    
+    def reset(self):
+        self.setIcon(QIcon('icons/down-arrow.svg'))
+        self.click_count = 0
+
+
+class GameBoardButton(QPushButton):
     def __init__(self, *args, style_sheet='', **kwargs):
         super().__init__(*args, **kwargs)
-        self.setMinimumSize(100, 100)
-        self.setIconSize(QSize(80, 80))
+        self.setMinimumSize(50, 50)
+        self.setIconSize(QSize(32, 32))
+        self.setIcon(QIcon(''))
         size_policy = QSizePolicy(
             QSizePolicy.Preferred,
             QSizePolicy.Preferred
@@ -56,17 +82,20 @@ class TicTacToeUIButton(QPushButton):
     
     def reset(self):
         self.setStyleSheet(self._style_sheet)
-        self.setIcon(QIcon())
+        self.setIcon(QIcon(''))
 
 
-class TicTacToeUI(QWidget):
-    m, n, k = 3, 3, 3
-    icons = ['icons/x-mark.svg', 'icons/hollow-circle.svg']
+class ConnectFourUI(QWidget):
+    m, n, k = 6, 7, 4
+    icons = [
+        'icons/filled-circle-yellow.svg',
+        'icons/filled-circle-red.svg'
+    ]
     
     def __init__(self, parent=None):
         super().__init__(parent)
         self.init_ui()
-        self._game = TicTacToe()
+        self._game = ConnectFour()
         self._started = False
     
     @property
@@ -89,10 +118,13 @@ class TicTacToeUI(QWidget):
     def turn_player(self):
         return self._game.turn_player
     
+    @property
+    def column_buttons(self):
+        return self._column_buttons
+    
     def init_ui(self):
         self.center()
-        self.setWindowTitle("TicTacToe")
-        self.setStyleSheet('background-color: #D7CCC8;')
+        self.setWindowTitle("Connect Four")
         # Players
         self._players_selector = QGridLayout()
         self._players = list()
@@ -106,12 +138,18 @@ class TicTacToeUI(QWidget):
             self._players_selector.addWidget(label, 0, p)
             self._players_selector.addWidget(selectbox, 1, p)
             self._players.append(selectbox)
+        self._columns = QGridLayout()
+        self._column_buttons = dict()
         self._grid = QGridLayout()
         self._gameboard_buttons = dict()
-        for row in range(self.m):
-            for col in range(self.n):
-                btn = TicTacToeUIButton('', parent=self, style_sheet='background-color: #D7CCC8;')
-                btn.clicked.connect(functools.partial(self.click_gameboard, row, col))
+        for col in range(self.n):
+            col_btn = ColumnButton('', parent=self)
+            col_btn.clicked.connect(functools.partial(self.click_column, col))
+            self._columns.addWidget(col_btn, 0, col)
+            self._column_buttons.update({col: col_btn})
+            for row in range(self.m):
+                btn = GameBoardButton('', parent=self)
+                btn.clicked.connect(col_btn.click)
                 self._grid.addWidget(btn, row, col)
                 self._gameboard_buttons.update({(row, col): btn})
         self._message_box = QLabel('', parent=self)
@@ -122,6 +160,7 @@ class TicTacToeUI(QWidget):
         # Layout
         self._layout = QVBoxLayout()
         self._layout.addLayout(self._players_selector)
+        self._layout.addLayout(self._columns)
         self._layout.addLayout(self._grid)
         self._layout.addWidget(self._message_box)
         self._layout.addWidget(self._restart_button)
@@ -134,13 +173,14 @@ class TicTacToeUI(QWidget):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
     
-    def click_gameboard(self, row, col):
+    def click_column(self, col):
         if not self._started or self._game.is_ended:
             pass
         else:
-            btn = self._gameboard_buttons.get((row, col))
+            row = self._column_buttons.get(col).click_count - 1
+            btn = self._gameboard_buttons.get((self.m - 1 - row, col))
             if self.gameboard.gameboard[row, col] != -1:
-                msg = 'It is occupied. Please select another one.'
+                msg = 'The column is fulled. Please select another one.'
                 self._message_box.setText(msg)
             else:
                 for _, b in self._gameboard_buttons.items():
@@ -172,6 +212,8 @@ class TicTacToeUI(QWidget):
         self._game.player1 = PLAYERS.get(self._players[1].currentText())
         self._restart_button.setText('Restart')
         self._message_box.setText('')
+        for _, btn in self._column_buttons.items():
+            btn.reset()
         for _, btn in self._gameboard_buttons.items():
             btn.reset()
         # Start game
@@ -180,14 +222,3 @@ class TicTacToeUI(QWidget):
     
     def restart(self):
         self.reset()
-
-
-def main():
-    app = QApplication(sys.argv)
-    widget = TicTacToeUI()
-    widget.show()
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()

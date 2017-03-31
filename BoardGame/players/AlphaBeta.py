@@ -14,8 +14,8 @@ class AlphaBeta(Player):
         tree = GameTree('current', game=game)
         tree.alpha_beta(depth=self._n_depth)
         if not self._silent:
-            print(game.turn, 'root:', gt.root.game.turn_player)
-            tree.show()
+            print(game.turn, 'root:', tree.root.game.turn_player)
+            tree.show(1)
         moves_reward = [(child.name, child.reward) for child in tree.children]
         moves_reward.sort(key=lambda x: x[1])
         moves = [m for m, r in moves_reward if r == moves_reward[-1][1]]

@@ -1,6 +1,7 @@
 import numpy as np
 from ..Player import Player
 from ..GameTree import GameTree
+from PyQt5.QtWidgets import qApp
 
 
 class Human(Player):
@@ -22,5 +23,4 @@ class Human(Player):
         return move
     
     def decide_ui(self, game_ui):
-        # Let the human click.
         pass
