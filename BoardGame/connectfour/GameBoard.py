@@ -6,14 +6,14 @@ class GameBoard(GameBoard):
         super().__init__(shape=(6, 7))
     
     @property
-    def available_moves(self):
-        moves = []
-        n_row, n_col = self._gameboard.shape
+    def available_coords(self):
+        coords = []
+        n_row, n_col = self._array.shape
         for c in range(n_col):
             for r in range(n_row):
-                if self._gameboard[r, c] == -1:
-                    moves.append((r, c))
+                if self._array[r, c] == -1:
+                    coords.append((r, c))
                     break
                 else:
                     pass
-        return moves
+        return coords

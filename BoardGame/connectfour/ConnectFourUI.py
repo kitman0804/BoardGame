@@ -21,10 +21,11 @@ PLAYERS = {
     'Monkey': Monkey(),
     'Robot-MM4': MinMax(n_depth=4),
     'Robot-MM6': MinMax(n_depth=6),
-    'Robot-MMS2.20': MinMaxSim(n_depth=2, n_sim=20),
-    'Robot-MMS4.05': MinMaxSim(n_depth=4, n_sim=5),
+    'Robot-MMS2.100': MinMaxSim(n_depth=2, n_sim=100),
+    'Robot-MMS4.10': MinMaxSim(n_depth=4, n_sim=10),
     'Robot-AB6': AlphaBeta(n_depth=6),
-    'Robot-ABS2.20': AlphaBetaSim(n_depth=2, n_sim=20),
+    'Robot-ABS2.100': AlphaBetaSim(n_depth=2, n_sim=100),
+    'Robot-ABS4.10': AlphaBetaSim(n_depth=4, n_sim=10),
 }
 
 
@@ -34,17 +35,8 @@ class ColumnButton(QPushButton):
         self.setMinimumSize(50, 50)
         self.setIconSize(QSize(32, 32))
         self.setIcon(QIcon('icons/down-arrow.svg'))
-        size_policy = QSizePolicy(
-            QSizePolicy.Preferred,
-            QSizePolicy.Preferred
-        )
-        size_policy.setHeightForWidth(True)
-        self.setSizePolicy(size_policy)
         self.click_count = 0
         self.clicked.connect(self.count)
-    
-    def heightForWidth(self, width):
-        return width
     
     def count(self):
         self.click_count += 1
@@ -93,7 +85,7 @@ class ConnectFourUI(QWidget):
     ]
     
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__(parent=parent)
         self.init_ui()
         self._game = ConnectFour()
         self._started = False
@@ -179,15 +171,15 @@ class ConnectFourUI(QWidget):
         else:
             row = self._column_buttons.get(col).click_count - 1
             btn = self._gameboard_buttons.get((self.m - 1 - row, col))
-            if self.gameboard.gameboard[row, col] != -1:
+            if self.gameboard.array[row, col] != -1:
                 msg = 'The column is fulled. Please select another one.'
                 self._message_box.setText(msg)
             else:
                 for _, b in self._gameboard_buttons.items():
                     b.remove_border()
-                btn.setIcon(QIcon(self.icons[self._game.turn_player]))
+                btn.setIcon(QIcon(self.icons[self.turn_player]))
                 btn.add_border('border: 1px solid #FF0000;')
-                self._game.move(row=row, col=col, player=self._game.turn_player)
+                self._game.place_stone(row=row, col=col, player=self.turn_player)
                 self._message_box.setText('')
             # Next turn
             self.next_turn()

@@ -5,7 +5,7 @@ from ..players import Player, Human
 
 
 class ConnectFour(BoardGame):
-    category='m,n,k-game (constrainted)'
+    category='m,n,k-game (with additional rule)'
     m, n, k = 6, 7, 4
     n_players = 2
     
@@ -36,16 +36,12 @@ class ConnectFour(BoardGame):
     @property
     def players(self):
         return (self._player0, self._player1)
-        @property
-        def turn_player(self):
-            return self._turn % 2
     
     @property
     def turn_player(self):
         return self._turn % 2
     
     def find_winner(self, row=None, col=None):
-        who = self._turn % 2
         # Check if someone has won
         for l in self._gameboard.get_lines(row=row, col=col):
             if len(l) < self.k:
@@ -53,9 +49,9 @@ class ConnectFour(BoardGame):
             else:
                 count = 0
                 for x in l:
-                    count += 1 if x == who else -count
+                    count += 1 if x == self.turn_player else -count
                     if count == self.k:
-                        return who
+                        return self.turn_player
                     else:
                         pass
         # If no one won, check if it is a draw game.
@@ -64,9 +60,10 @@ class ConnectFour(BoardGame):
         else:
             return None
     
-    def move(self, row, col, player):
-        self._gameboard.put(row=row, col=col, player=player)
+    def place_stone(self, row, col, player):
+        self._gameboard.place_stone(row=row, col=col, player=player)
         self._winner = self.find_winner(row=row, col=col)
+        self._recorder.record(coord=(row, col), player=player)
         self._turn += 1
     
     def start(self, player0=Human(name='Player 0'), player1=Human(name='Player 1')):
@@ -78,31 +75,32 @@ class ConnectFour(BoardGame):
             self._player0 = player0
             self._player1 = player1
             while self._winner is None:
-                available_moves = self._gameboard.available_moves
-                move = None
-                while move not in available_moves:
-                    move = self.players[self._turn % 2].decide(game=self)
-                    if move == 'pause':
+                available_coords = self._gameboard.available_coords
+                coord = None
+                while coord not in available_coords:
+                    coord = self.players[self.turn_player].decide(game=self)
+                    if coord == 'pause':
                         print('The game is paused.')
                         return None
-                    elif move not in available_moves:
+                    elif coord not in available_coords:
                         print('Invalid move. Only the following slots were avaiable:')
-                        print('  ', list(available_moves.keys()))
+                        print('  ', list(available_coords))
                     else:
                         pass
-                self.move(*move, player=self._turn % 2)
+                self.place_stone(*coord, player=self.turn_player)
             # Print result
             if self._winner == -1:
                 msg = 'Draw! What a game!'
             else:
                 msg = 'Congratulations! {:} won!'.format(self.players[self._winner].name)
-            print(self._gameboard.gameboard)
+            print(self._gameboard.array)
             print(msg)
     
     def reset(self):
         self._gameboard.reset()
         self._turn = 0
         self._winner = None
+        self._recorder.reset()
     
     def restart(self):
         self.reset()

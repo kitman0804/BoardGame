@@ -4,52 +4,66 @@ import numpy as np
 
 class GameBoard(object):
     def __init__(self, shape=(3, 3)):
-        self._gameboard = -np.ones(shape=shape, dtype=int)
+        self._array = -np.ones(shape=shape, dtype=int)
     
     @property
-    def gameboard(self):
-        return self._gameboard
+    def array(self):
+        return self._array
     
     @property
     def shape(self):
-        return self._gameboard.shape
+        return self._array.shape
+    
+    @property
+    def m(self):
+        return self.shape[0]
+    
+    @property
+    def n(self):
+        return self.shape[1]
     
     @property
     def is_empty(self):
-        return np.sum(self._gameboard != -1) == 0
+        return np.sum(self._array != -1) == 0
     
     @property
     def is_full(self):
-        return np.sum(self._gameboard == -1) == 0
+        return np.sum(self._array == -1) == 0
     
     @property
-    def is_symmetric(self, axis=0):
-        if axis == 0:
-            return np.sum(self._gameboard != self._gameboard[::-1, :]) == 0
-        elif axis == 1:
-            return np.sum(self._gameboard != self._gameboard[:, ::-1]) == 0
-        elif axis == (0, 1):
-            ax0 = np.sum(self._gameboard != self._gameboard[::-1, :]) == 0
-            ax1 = np.sum(self._gameboard != self._gameboard[:, ::-1]) == 0
-            return ax0 and ax1
+    def available_coords(self):
+        return [(r, c) for r, c in zip(*np.where(self._array == -1))]
+    
+    @property
+    def is_reflectional0(self):
+        return np.all(self._array == self._array[::-1, :])
+    
+    @property
+    def is_reflectional1(self):
+        return np.all(self._array == self._array[:, ::-1])
+    
+    @property
+    def is_rotational(self):
+        if self.shape[0] != self.shape[1]:
+            return False
         else:
-            raise ValueError('Invalid axis.')
+            r0 = self._array
+            r90 = np.rot90(r0, k=1)
+            r180 = np.rot90(r0, k=2)
+            r270 = np.rot90(r0, k=3)
+            return np.all(r0 == r90) and np.all(r0 == r180) and np.all(r0 == r270)
     
-    @property
-    def is_rotational_summetric(self):
-        pass
-    
-    def put(self, row, col, player):
-        self._gameboard[row, col] = player
+    def place_stone(self, row, col, player):
+        self._array[row, col] = player
     
     def reset(self):
-        self._gameboard = -np.ones(shape=self.shape, dtype=int)
+        self._array = -np.ones(shape=self.shape, dtype=int)
     
     def copy(self):
         return copy.deepcopy(self)
     
     def _get_lines_passing(self, row, col):
-        board = self._gameboard
+        board = self._array
         n_row, n_col = board.shape
         # Flatten the board into 1-D
         b_flat = board.reshape(-1)
@@ -71,7 +85,7 @@ class GameBoard(object):
         yield d_line
     
     def _get_all_lines(self):
-        board = self._gameboard
+        board = self._array
         n_row, n_col = board.shape
         # All horizontal lines
         for i in range(n_row):
@@ -92,7 +106,3 @@ class GameBoard(object):
             return self._get_all_lines()
         else:
             return self._get_lines_passing(row=row, col=col)
-    
-    @property
-    def available_moves(self):
-        return [(r, c) for r, c in zip(*np.where(self._gameboard == -1))]

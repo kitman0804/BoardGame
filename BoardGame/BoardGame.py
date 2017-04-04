@@ -1,4 +1,5 @@
 from copy import deepcopy
+from .GameRecorder import GameRecorder
 
 
 class BoardGame(object):
@@ -8,9 +9,10 @@ class BoardGame(object):
     def __init__(self):
         self._players = []
         self._gameboard = None
-        self.available_moves = ()
+        self.available_coords = ()
         self._turn = None
         self._winner = None
+        self._recorder = GameRecorder()
     
     @property
     def gameboard(self):
@@ -30,3 +32,9 @@ class BoardGame(object):
     
     def copy(self):
         return deepcopy(self)
+    
+    def save_record(self, directory, game_id):
+        path = directory + '/' + game_id + '.json'
+        msg = 'The record is saved in {:}'.format(path)
+        print(msg)
+        self._recorder.save_json(path)

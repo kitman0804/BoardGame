@@ -4,7 +4,7 @@ from anytree import Node, RenderTree
 
 class GameTree(Node):
     def __init__(self, name, game,
-                 reward_param=(1, 0, -1, 0), discount=1,
+                 reward_param=(1, 0, -1, 0), discount=0.9,
                  parent=None):
         super().__init__(name=name, parent=parent)
         self._game = game
@@ -13,10 +13,10 @@ class GameTree(Node):
         self._children_simulated = False
     
     def __repr__(self):
-        print_text = '<State ({:}-{:}-{:.2f})>'
+        print_text = '<State ({:}, {:}, {:.2f})>'
         print_text = print_text.format(
             self.name,
-            self._game.winner,
+            self._game.winner if self._game.winner is not None else '_',
             self.reward
         )
         return print_text
@@ -87,11 +87,11 @@ class GameTree(Node):
                 if node.game.is_ended:
                     pass
                 else:
-                    for move in node.game.gameboard.available_moves:
+                    for coord in node.game.gameboard.available_coords:
                         game = node.game.copy()
-                        game.move(*move, game.turn_player)
+                        game.place_stone(*coord, game.turn_player)
                         GameTree(
-                            move, game=game, parent=node,
+                            coord, game=game, parent=node,
                             reward_param=self.reward_param,
                             discount=self.discount
                         )
@@ -102,11 +102,11 @@ class GameTree(Node):
                 if node.game.is_ended:
                     pass
                 else:
-                    for move in node.game.gameboard.available_moves:
+                    for coord in node.game.gameboard.available_coords:
                         game = node.game.copy()
-                        game.move(*move, game.turn_player)
+                        game.place_stone(*coord, game.turn_player)
                         GameTree(
-                            move, game=game, parent=node,
+                            coord, game=game, parent=node,
                             reward_param=self.reward_param,
                             discount=self.discount
                         )
@@ -121,9 +121,9 @@ class GameTree(Node):
             for node in nodes:
                 game = node.game.copy()
                 while game.winner is None:
-                    available_moves = game.gameboard.available_moves
-                    move = available_moves[np.random.choice(len(available_moves))]
-                    game.move(*move, player=game.turn_player)
+                    available_coords = game.gameboard.available_coords
+                    coord = available_coords[np.random.choice(len(available_coords))]
+                    game.place_stone(*coord, player=game.turn_player)
                 GameTree(
                     '{:}_{:}'.format(node.name, i), game=game, parent=node,
                     reward_param=self.reward_param,

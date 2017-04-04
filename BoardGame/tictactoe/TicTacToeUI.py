@@ -22,12 +22,11 @@ PLAYERS = {
     'Robot-MM2': MinMax(n_depth=2),
     'Robot-MM4': MinMax(n_depth=4),
     'Robot-MM6': MinMax(n_depth=6),
-    'Robot-MMS2.10': MinMaxSim(n_depth=2, n_sim=10),
-    'Robot-MMS2.20': MinMaxSim(n_depth=2, n_sim=20),
-    'Robot-MMS4.01': MinMaxSim(n_depth=4, n_sim=1),
-    'Robot-MMS4.05': MinMaxSim(n_depth=4, n_sim=5),
+    'Robot-MMS6.05': MinMaxSim(n_depth=6, n_sim=5),
+    'Robot-AB2': AlphaBeta(n_depth=2),
+    'Robot-AB4': AlphaBeta(n_depth=4),
     'Robot-AB6': AlphaBeta(n_depth=6),
-    'Robot-ABS2.20': AlphaBetaSim(n_depth=2, n_sim=20),
+    'Robot-ABS6.05': AlphaBetaSim(n_depth=6, n_sim=5),
 }
 
 
@@ -139,7 +138,7 @@ class TicTacToeUI(QWidget):
             pass
         else:
             btn = self._gameboard_buttons.get((row, col))
-            if self.gameboard.gameboard[row, col] != -1:
+            if self.gameboard.array[row, col] != -1:
                 msg = 'It is occupied. Please select another one.'
                 self._message_box.setText(msg)
             else:
@@ -147,7 +146,7 @@ class TicTacToeUI(QWidget):
                     b.remove_border()
                 btn.setIcon(QIcon(self.icons[self._game.turn_player]))
                 btn.add_border('border: 1px solid #FF0000;')
-                self._game.move(row=row, col=col, player=self._game.turn_player)
+                self._game.place_stone(row=row, col=col, player=self._game.turn_player)
                 self._message_box.setText('')
             # Next turn
             self.next_turn()
