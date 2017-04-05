@@ -33,6 +33,9 @@ class BoardGame(object):
     def copy(self):
         return deepcopy(self)
     
+    def record(coord, player):
+        self._recorder.record(coord=coord, player=player)
+    
     def save_record(self, directory, game_id):
         path = directory + '/' + game_id + '.json'
         msg = 'The record is saved in {:}'.format(path)

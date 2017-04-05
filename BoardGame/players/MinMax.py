@@ -1,6 +1,6 @@
 import numpy as np
 from ..Player import Player
-from ..GameTree import GameTree
+from ..ai import GameTree, minimax, heuristic_func
 
 
 class MinMax(Player):
@@ -12,7 +12,8 @@ class MinMax(Player):
     
     def decide(self, game):
         tree = GameTree('current', game=game)
-        tree.minmax(depth=self._n_depth)
+        tree.build(depth=self._n_depth)
+        minimax(tree, hfunc=heuristic_func.simple)
         if not self._silent:
             print(game.turn, 'root:', tree.root.game.turn_player)
             tree.show(1)

@@ -1,6 +1,6 @@
 import numpy as np
 from ..Player import Player
-from ..GameTree import GameTree
+from ..ai import GameTree
 from PyQt5.QtWidgets import qApp
 
 

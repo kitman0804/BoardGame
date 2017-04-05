@@ -49,11 +49,12 @@ class ConnectFour(BoardGame):
             else:
                 count = 0
                 for x in l:
-                    count += 1 if x == self.turn_player else -count
-                    if count == self.k:
-                        return self.turn_player
+                    if x == self.turn_player:
+                        count += 1
+                        if count == self.k:
+                            return self.turn_player
                     else:
-                        pass
+                        count = 0
         # If no one won, check if it is a draw game.
         if self._gameboard.is_full:
             return -1
@@ -63,10 +64,9 @@ class ConnectFour(BoardGame):
     def place_stone(self, row, col, player):
         self._gameboard.place_stone(row=row, col=col, player=player)
         self._winner = self.find_winner(row=row, col=col)
-        self._recorder.record(coord=(row, col), player=player)
         self._turn += 1
     
-    def start(self, player0=Human(name='Player 0'), player1=Human(name='Player 1')):
+    def start(self, player0=Human(name='P0'), player1=Human(name='P1')):
         if not (isinstance(player0, Player) and isinstance(player1, Player)):
             raise ValueError('player0 and player1 must be a Player.')
         else:
@@ -88,7 +88,9 @@ class ConnectFour(BoardGame):
                     else:
                         pass
                 self.place_stone(*coord, player=self.turn_player)
-            # Print result
+                self.record(coord=coord, player=self.turn_player)
+            # End game
+            self._recorder.winner = self._winner
             if self._winner == -1:
                 msg = 'Draw! What a game!'
             else:

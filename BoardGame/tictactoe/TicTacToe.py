@@ -48,7 +48,7 @@ class TicTacToe(BoardGame):
         for l in self._gameboard.get_lines(row=row, col=col):
             if len(l) < self.k:
                 pass
-            elif np.sum(l == self.turn_player) == self.k:
+            elif np.all(l == self.turn_player):
                 return self.turn_player
             else:
                 pass
@@ -61,10 +61,9 @@ class TicTacToe(BoardGame):
     def place_stone(self, row, col, player):
         self._gameboard.place_stone(row=row, col=col, player=player)
         self._winner = self.find_winner(row=row, col=col)
-        self._recorder.record(coord=(row, col), player=player)
         self._turn += 1
     
-    def start(self, player0=Human(name='Player 0'), player1=Human(name='Player 1')):
+    def start(self, player0=Human(name='P0'), player1=Human(name='P1')):
         if not (isinstance(player0, Player) and isinstance(player1, Player)):
             raise ValueError('player0 and player1 must be a Player.')
         else:
@@ -76,7 +75,7 @@ class TicTacToe(BoardGame):
                 available_coords = self._gameboard.available_coords
                 coord = None
                 while coord not in available_coords:
-                    coord = self.players[self._turn % 2].decide(game=self)
+                    coord = self.players[self.turn_player].decide(game=self)
                     if coord == 'pause':
                         print('The game is paused.')
                         return None
@@ -85,8 +84,10 @@ class TicTacToe(BoardGame):
                         print('  ', list(available_coords))
                     else:
                         pass
-                self.place_stone(*coord, player=self._turn % 2)
-            # Print result
+                self.place_stone(*coord, player=self.turn_player)
+                self.record(coord=coord, player=self.turn_player)
+            # End game
+            self._recorder.winner = self._winner
             if self._winner == -1:
                 msg = 'Draw! What a game!'
             else:

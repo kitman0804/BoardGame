@@ -9,11 +9,11 @@ from PyQt5.QtWidgets import (QApplication, qApp,
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTimer, QSize
 from .TicTacToe import TicTacToe
-from ..players import Human, Monkey, MinMax, MinMaxSim, AlphaBeta, AlphaBetaSim
+from ..players import Human, Monkey, MinMax, AlphaBeta
 
 
 REGISTER_PLAYER_TYPES = (
-    Human, Monkey, MinMax, MinMaxSim, AlphaBeta, AlphaBetaSim
+    Human, Monkey, MinMax, AlphaBeta
 )
 
 PLAYERS = {
@@ -22,11 +22,9 @@ PLAYERS = {
     'Robot-MM2': MinMax(n_depth=2),
     'Robot-MM4': MinMax(n_depth=4),
     'Robot-MM6': MinMax(n_depth=6),
-    'Robot-MMS6.05': MinMaxSim(n_depth=6, n_sim=5),
     'Robot-AB2': AlphaBeta(n_depth=2),
     'Robot-AB4': AlphaBeta(n_depth=4),
     'Robot-AB6': AlphaBeta(n_depth=6),
-    'Robot-ABS6.05': AlphaBetaSim(n_depth=6, n_sim=5),
 }
 
 
@@ -63,7 +61,7 @@ class TicTacToeUI(QWidget):
     icons = ['icons/x-mark.svg', 'icons/hollow-circle.svg']
     
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__(parent=parent)
         self.init_ui()
         self._game = TicTacToe()
         self._started = False

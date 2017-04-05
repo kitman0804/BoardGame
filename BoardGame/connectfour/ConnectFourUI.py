@@ -9,11 +9,11 @@ from PyQt5.QtWidgets import (QApplication, qApp,
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTimer, QSize
 from .ConnectFour import ConnectFour
-from ..players import Human, Monkey, MinMax, MinMaxSim, AlphaBeta, AlphaBetaSim
+from ..players import Human, Monkey, MinMax, AlphaBeta
 
 
 REGISTER_PLAYER_TYPES = (
-    Human, Monkey, MinMax, MinMaxSim, AlphaBeta, AlphaBetaSim
+    Human, Monkey, MinMax, AlphaBeta
 )
 
 PLAYERS = {
@@ -21,11 +21,7 @@ PLAYERS = {
     'Monkey': Monkey(),
     'Robot-MM4': MinMax(n_depth=4),
     'Robot-MM6': MinMax(n_depth=6),
-    'Robot-MMS2.100': MinMaxSim(n_depth=2, n_sim=100),
-    'Robot-MMS4.10': MinMaxSim(n_depth=4, n_sim=10),
     'Robot-AB6': AlphaBeta(n_depth=6),
-    'Robot-ABS2.100': AlphaBetaSim(n_depth=2, n_sim=100),
-    'Robot-ABS4.10': AlphaBetaSim(n_depth=4, n_sim=10),
 }
 
 

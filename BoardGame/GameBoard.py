@@ -23,16 +23,16 @@ class GameBoard(object):
         return self.shape[1]
     
     @property
+    def available_coords(self):
+        return [(r, c) for r, c in zip(*np.where(self._array == -1))]
+    
+    @property
     def is_empty(self):
-        return np.sum(self._array != -1) == 0
+        return np.all(self._array == -1)
     
     @property
     def is_full(self):
-        return np.sum(self._array == -1) == 0
-    
-    @property
-    def available_coords(self):
-        return [(r, c) for r, c in zip(*np.where(self._array == -1))]
+        return np.all(self._array != -1)
     
     @property
     def is_reflectional0(self):
@@ -43,15 +43,22 @@ class GameBoard(object):
         return np.all(self._array == self._array[:, ::-1])
     
     @property
-    def is_rotational(self):
+    def is_rotational90(self):
         if self.shape[0] != self.shape[1]:
             return False
         else:
             r0 = self._array
-            r90 = np.rot90(r0, k=1)
-            r180 = np.rot90(r0, k=2)
-            r270 = np.rot90(r0, k=3)
-            return np.all(r0 == r90) and np.all(r0 == r180) and np.all(r0 == r270)
+            ind = True
+            for i in range(1, 4):
+                r = np.rot90(r0, k=i)
+                ind = ind and np.all(r == r0)
+            return ind
+    
+    @property
+    def is_rotational180(self):
+        r0 = self._array
+        r = np.rot90(r0, k=2)
+        return np.all(r == r0)
     
     def place_stone(self, row, col, player):
         self._array[row, col] = player
