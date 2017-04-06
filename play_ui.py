@@ -13,7 +13,10 @@ def main():
     while game not in game_type:
         query = (
             'What game do you want to play? \n'
-            '(tictactoe, connectfour) '
+            'Game         Code\n'
+            '------------ -----------\n'
+            'Tic-Tac-Toe  tictactoe\n'
+            'Connect Four connectfour\n'
         )
         game = input(query).lower()
     # Start game

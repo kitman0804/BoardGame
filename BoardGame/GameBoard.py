@@ -23,10 +23,6 @@ class GameBoard(object):
         return self.shape[1]
     
     @property
-    def available_coords(self):
-        return [(r, c) for r, c in zip(*np.where(self._array == -1))]
-    
-    @property
     def is_empty(self):
         return np.all(self._array == -1)
     
@@ -59,6 +55,43 @@ class GameBoard(object):
         r0 = self._array
         r = np.rot90(r0, k=2)
         return np.all(r == r0)
+    
+    @property
+    def available_coords(self):
+        self.all_available_coords
+    
+    @property
+    def all_available_coords(self):
+        return [(r, c) for r, c in zip(*np.where(self._array == -1))]
+    
+    @property
+    def reduced_available_coords(self):
+        all_coords = self.all_available_coords
+        reduced_coords = []
+        for coord in all_coords:
+            duplicated = False
+            if len(reduced_coords) == 0:
+                reduced_coords.append(coord)
+                continue
+            # Reflective symmetry
+            if self.is_reflectional0:
+                if (self.m - 1 - coord[0], coord[1]) in reduced_coords:
+                    duplicated = True
+            if self.is_reflectional1:
+                if (coord[0], self.n - 1 - coord[1]) in reduced_coords:
+                    duplicated = True
+            # Rotational symmetry
+            if self.is_rotational180:
+                if (self.m - 1 - coord[0], self.n - 1 - coord[1]) in reduced_coords:
+                    duplicated = True
+            if self.is_rotational90:
+                if (coord[1], self.n - 1 - coord[0]) in reduced_coords:
+                    duplicated = True
+                if (self.m - 1 - coord[1], coord[0]) in reduced_coords:
+                    duplicated = True
+            if not duplicated:
+                reduced_coords.append(coord)
+        return reduced_coords
     
     def place_stone(self, row, col, player):
         self._array[row, col] = player

@@ -1,7 +1,6 @@
 import numpy as np
 from ..Player import Player
-from ..ai import GameTree
-from PyQt5.QtWidgets import qApp
+from ..ai import GameTree, search, heuristic_func
 
 
 class Human(Player):
@@ -10,17 +9,37 @@ class Human(Player):
         super().__init__(player=player, name=name)
         self._hint = hint
     
+    @staticmethod
+    def get_hint(game):
+        tree = GameTree('current', game=game)
+        search.minmax(
+            node=tree,
+            depth=2,
+            hfunc=heuristic_func.simple,
+            use_symmetry=False
+        )
+        coords_reward = [(child.name, child.reward) for child in tree.children]
+        best_reward = max(r for _, r in coords_reward)
+        coord_choices = [m for m, r in coords_reward if r == best_reward]
+        return tree, coord_choices
+    
     def decide(self, game):
-        print(game.gameboard.gameboard)
-        move = input('{:}, what is your move? '.format(self.name))
-        if move.lower() == 'p':
+        print(game.gameboard.array)
+        if self._hint:
+            tree, coord_choices = self.get_hint(game)
+            print('You are player {:}.'.format(game.turn_player))
+            tree.show(1)
+            print('Suggestions:')
+            print(coord_choices)
+        coord = input('{:}, what\'s your decision? '.format(self.name))
+        if coordcoord.lower() == 'p':
             return 'pause'
         else:
             try:
-                move = eval(move)
+                coord = eval(coord)
             except NameError:
-                move = None
-        return move
+                coord = None
+        return coord
     
     def decide_ui(self, game_ui):
         pass

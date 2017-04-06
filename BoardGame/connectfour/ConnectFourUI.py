@@ -10,6 +10,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTimer, QSize
 from .ConnectFour import ConnectFour
 from ..players import Human, Monkey, MinMax, AlphaBeta
+from ..ai import heuristic_func
 
 
 REGISTER_PLAYER_TYPES = (
@@ -19,9 +20,13 @@ REGISTER_PLAYER_TYPES = (
 PLAYERS = {
     'Human': Human(),
     'Monkey': Monkey(),
-    'Robot-MM4': MinMax(n_depth=4),
-    'Robot-MM6': MinMax(n_depth=6),
-    'Robot-AB6': AlphaBeta(n_depth=6),
+    'Robot-MM2-SIM-S': MinMax(depth=2, hfunc=heuristic_func.simulation, use_symmetry=True),
+    'Robot-MM4': MinMax(depth=4),
+    'Robot-MM4-S': MinMax(depth=4, use_symmetry=True),
+    'Robot-MM4-SIM-S': MinMax(depth=4, hfunc=heuristic_func.simulation, use_symmetry=True),
+    'Robot-MM6': MinMax(depth=6),
+    'Robot-MM6-S': MinMax(depth=6, use_symmetry=True),
+    'Robot-AB6': AlphaBeta(depth=6),
 }
 
 

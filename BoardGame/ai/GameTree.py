@@ -60,66 +60,6 @@ class GameTree(Node):
     def winner(self):
         return self._game.winner
     
-    @staticmethod
-    def get_unique_coords(game):
-        available_coords = game.gameboard.available_coords
-        unique_coords = []
-        for coord in available_coords:
-            duplicated = False
-            m, n = game.gameboard.shape
-            if game.gameboard.is_reflectional0:
-                if (m - 1 - coord[0], coord[1]) in unique_coords:
-                    duplicated = True
-            if game.gameboard.is_reflectional1:
-                if (coord[0], n - 1 - coord[1]) in unique_coords:
-                    duplicated = True
-            if game.gameboard.is_rotational180:
-                if (m - 1 - coord[0], n - 1 - coord[1]) in unique_coords:
-                    duplicated = True
-            if game.gameboard.is_rotational90:
-                if (coord[1], n - 1 - coord[0]) in unique_coords:
-                    duplicated = True
-                if (m - 1 - coord[1], coord[0]) in unique_coords:
-                    duplicated = True
-            if not duplicated:
-                unique_coords.append(coord)
-        return unique_coords
-    
-    @staticmethod
-    def build_tree(node, depth, smart=False):
-        if depth <= 0:
-            pass
-        elif node.game.is_ended:
-            pass
-        else:
-            turn_player = node.game.turn_player
-            if smart:
-                available_coords = GameTree.get_unique_coords(node.game)
-            else:
-                available_coords = node.game.gameboard.available_coords
-            win_node_found = False
-            for coord in available_coords:
-                game = node.game.copy()
-                game.place_stone(*coord, turn_player)
-                new_node = GameTree(
-                    name=coord, game=game, parent=node
-                )
-                if game.winner == turn_player:
-                    win_node_found = True
-                if smart and win_node_found:
-                    # No need to expand other siblings
-                    # if winning state of the player was found.
-                    pass
-                else:
-                    GameTree.build_tree(node=new_node, depth=depth - 1, smart=smart)
-    
-    def build(self, depth, smart=False):
-        if self.is_leaf:
-            self.build_tree(self, depth=depth, smart=smart)
-        else:
-            for node in self.leaves:
-                self.build_tree(node, depth=depth, smart=smart)
-    
     def clean_reward(self):
         self.reward = None
         for node in self.descendants:

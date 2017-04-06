@@ -10,6 +10,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTimer, QSize
 from .TicTacToe import TicTacToe
 from ..players import Human, Monkey, MinMax, AlphaBeta
+from ..ai import heuristic_func
 
 
 REGISTER_PLAYER_TYPES = (
@@ -19,12 +20,10 @@ REGISTER_PLAYER_TYPES = (
 PLAYERS = {
     'Human': Human(),
     'Monkey': Monkey(),
-    'Robot-MM2': MinMax(n_depth=2),
-    'Robot-MM4': MinMax(n_depth=4),
-    'Robot-MM6': MinMax(n_depth=6),
-    'Robot-AB2': AlphaBeta(n_depth=2),
-    'Robot-AB4': AlphaBeta(n_depth=4),
-    'Robot-AB6': AlphaBeta(n_depth=6),
+    'Robot-MM4': MinMax(depth=4),
+    'Robot-MM6': MinMax(depth=6),
+    'Robot-MM6-S': MinMax(depth=6, use_symmetry=True),
+    'Robot-AB6': AlphaBeta(depth=6),
 }
 
 
