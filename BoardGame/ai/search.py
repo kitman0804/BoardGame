@@ -73,7 +73,7 @@ def alpha_beta(node, depth, hfunc,
             )
             best_value = max(best_value, child_node.reward)
             alpha = max(alpha, best_value)
-            if beta <= alpha:
+            if beta < alpha:
                 break
         node.reward = best_value
     else:
@@ -92,7 +92,7 @@ def alpha_beta(node, depth, hfunc,
             )
             best_value = min(best_value, child_node.reward)
             beta = min(beta, best_value)
-            if beta <= alpha:
+            if beta < alpha:
                 break
         node.reward = best_value
 
