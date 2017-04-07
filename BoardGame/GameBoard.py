@@ -57,41 +57,51 @@ class GameBoard(object):
         return np.all(r == r0)
     
     @property
-    def available_coords(self):
-        self.all_available_coords
-    
-    @property
     def all_available_coords(self):
         return [(r, c) for r, c in zip(*np.where(self._array == -1))]
     
     @property
     def reduced_available_coords(self):
+        return list(self.equivalent_coords.keys())
+    
+    @property
+    def equivalent_coords(self):
         all_coords = self.all_available_coords
-        reduced_coords = []
+        eq_coords = dict()
         for coord in all_coords:
-            duplicated = False
-            if len(reduced_coords) == 0:
-                reduced_coords.append(coord)
+            exist_equivalent = False
+            if len(eq_coords) == 0:
+                eq_coords.update({coord: [coord]})
                 continue
             # Reflective symmetry
             if self.is_reflectional0:
-                if (self.m - 1 - coord[0], coord[1]) in reduced_coords:
-                    duplicated = True
+                e_coord = (self.m - 1 - coord[0], coord[1])
+                if e_coord in eq_coords.keys():
+                    exist_equivalent = True
+                    eq_coords.get(e_coord).append(coord)
             if self.is_reflectional1:
-                if (coord[0], self.n - 1 - coord[1]) in reduced_coords:
-                    duplicated = True
+                e_coord = (coord[0], self.n - 1 - coord[1])
+                if e_coord in eq_coords.keys():
+                    exist_equivalent = True
+                    eq_coords.get(e_coord).append(coord)
             # Rotational symmetry
             if self.is_rotational180:
-                if (self.m - 1 - coord[0], self.n - 1 - coord[1]) in reduced_coords:
-                    duplicated = True
+                e_coord = (self.m - 1 - coord[0], self.n - 1 - coord[1])
+                if e_coord in eq_coords.keys():
+                    exist_equivalent = True
+                    eq_coords.get(e_coord).append(coord)
             if self.is_rotational90:
-                if (coord[1], self.n - 1 - coord[0]) in reduced_coords:
-                    duplicated = True
-                if (self.m - 1 - coord[1], coord[0]) in reduced_coords:
-                    duplicated = True
-            if not duplicated:
-                reduced_coords.append(coord)
-        return reduced_coords
+                e_coord = (coord[1], self.n - 1 - coord[0])
+                if e_coord in eq_coords.keys():
+                    exist_equivalent = True
+                    eq_coords.get(e_coord).append(coord)
+                e_coord = (self.m - 1 - coord[1], coord[0])
+                if e_coord in eq_coords.keys():
+                    exist_equivalent = True
+                    eq_coords.get(e_coord).append(coord)
+            if not exist_equivalent:
+                eq_coords.update({coord: [coord]})
+        return eq_coords
     
     def place_stone(self, row, col, player):
         self._array[row, col] = player

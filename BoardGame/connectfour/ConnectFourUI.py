@@ -9,24 +9,38 @@ from PyQt5.QtWidgets import (QApplication, qApp,
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTimer, QSize
 from .ConnectFour import ConnectFour
-from ..players import Human, Monkey, MinMax, AlphaBeta
-from ..ai import heuristic_func
+from ..players import Human, Monkey, RobotTS
+from ..ai import search
+from ..ai.heuristic_func import HeuristicWDLN, HeuristicSimulate
 
 
-REGISTER_PLAYER_TYPES = (
-    Human, Monkey, MinMax, AlphaBeta
-)
+REGISTERED_PLAYER_TYPES = (Human, Monkey, RobotTS)
 
 PLAYERS = {
     'Human': Human(),
     'Monkey': Monkey(),
-    'Robot-MM2-SIM-S': MinMax(depth=2, hfunc=heuristic_func.simulation, use_symmetry=True),
-    'Robot-MM4': MinMax(depth=4),
-    'Robot-MM4-S': MinMax(depth=4, use_symmetry=True),
-    'Robot-MM4-SIM-S': MinMax(depth=4, hfunc=heuristic_func.simulation, use_symmetry=True),
-    'Robot-MM6': MinMax(depth=6),
-    'Robot-MM6-S': MinMax(depth=6, use_symmetry=True),
-    'Robot-AB6': AlphaBeta(depth=6),
+    'Robot-MM4': RobotTS(
+        search_func=search.minimax,
+        depth=4),
+    'Robot-MM4-S': RobotTS(
+        search_func=search.minimax,
+        depth=4,
+        use_symmetry=True),
+    'Robot-MM4-SIM-S': RobotTS(
+        search_func=search.minimax,
+        depth=4,
+        hfunc=HeuristicSimulate().evaluate,
+        use_symmetry=True),
+    'Robot-MAB2-SIM-S': RobotTS(
+        search_func=search.modified_alpha_beta,
+        depth=2,
+        hfunc=HeuristicSimulate(n_sim=200).evaluate,
+        use_symmetry=True),
+    'Robot-MAB4-SIM-S': RobotTS(
+        search_func=search.modified_alpha_beta,
+        depth=4,
+        hfunc=HeuristicSimulate(n_sim=10).evaluate,
+        use_symmetry=True),
 }
 
 
@@ -81,8 +95,8 @@ class GameBoardButton(QPushButton):
 class ConnectFourUI(QWidget):
     m, n, k = 6, 7, 4
     icons = [
-        'icons/filled-circle-yellow.svg',
-        'icons/filled-circle-red.svg'
+        'icons/filled-circle-red.svg',
+        'icons/filled-circle-yellow.svg'
     ]
     
     def __init__(self, parent=None):

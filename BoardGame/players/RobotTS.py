@@ -1,14 +1,17 @@
 import numpy as np
 from ..Player import Player
-from ..ai import GameTree, search, heuristic_func
+from ..ai import GameTree, search
+from BoardGame.ai.heuristic_func import HeuristicWDLN
 
 
-class AlphaBeta(Player):
+class RobotTS(Player):
     is_ai = True
-    def __init__(self, player=0, name='AB',
-                 depth=4, hfunc=heuristic_func.simple, use_symmetry=False,
+    def __init__(self, player=0, name='R0bot',
+                 search_func=search.modified_alpha_beta,
+                 depth=4, hfunc=HeuristicWDLN().evaluate, use_symmetry=False,
                  silent=True):
         super().__init__(player=player, name=name)
+        self._search_func = search_func
         self._depth = depth
         self._hfunc = hfunc
         self._use_symmetry = use_symmetry
@@ -16,7 +19,7 @@ class AlphaBeta(Player):
     
     def decide(self, game):
         tree = GameTree('current', game=game)
-        search.alpha_beta(
+        self._search_func(
             node=tree,
             depth=self._depth,
             hfunc=self._hfunc,
@@ -24,7 +27,14 @@ class AlphaBeta(Player):
         )
         coords_reward = [(child.name, child.reward) for child in tree.children]
         best_reward = max(r for _, r in coords_reward)
-        coord_choices = [m for m, r in coords_reward if r == best_reward]
+        best_coords = [m for m, r in coords_reward if r == best_reward]
+        if self._use_symmetry:
+            coord_choices = list()
+            for x in best_coords:
+                coord_choices.extend(game.gameboard.equivalent_coords.get(x, [x]))
+            coord_choices = list(set(coord_choices))
+        else:
+            coord_choices = best_coords
         coord = coord_choices[np.random.choice(range(len(coord_choices)))]
         if not self._silent:
             print(game.turn)

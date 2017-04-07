@@ -9,21 +9,31 @@ from PyQt5.QtWidgets import (QApplication, qApp,
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTimer, QSize
 from .TicTacToe import TicTacToe
-from ..players import Human, Monkey, MinMax, AlphaBeta
-from ..ai import heuristic_func
+from ..players import Human, Monkey, RobotTS
+from ..ai import search
+from ..ai.heuristic_func import HeuristicWDLN, HeuristicSimulate
 
 
-REGISTER_PLAYER_TYPES = (
-    Human, Monkey, MinMax, AlphaBeta
-)
+REGISTERED_PLAYER_TYPES = (Human, Monkey, RobotTS)
 
 PLAYERS = {
     'Human': Human(),
     'Monkey': Monkey(),
-    'Robot-MM4': MinMax(depth=4),
-    'Robot-MM6': MinMax(depth=6),
-    'Robot-MM6-S': MinMax(depth=6, use_symmetry=True),
-    'Robot-AB6': AlphaBeta(depth=6),
+    'Robot-MM6': RobotTS(
+        search_func=search.minimax,
+        depth=6),
+    'Robot-MM6-S': RobotTS(
+        search_func=search.minimax,
+        depth=6,
+        use_symmetry=True),
+    'Robot-AB6-S': RobotTS(
+        search_func=search.alpha_beta,
+        depth=6,
+        use_symmetry=True),
+    'Robot-MAB9-S': RobotTS(
+        search_func=search.modified_alpha_beta,
+        depth=6,
+        use_symmetry=True),
 }
 
 

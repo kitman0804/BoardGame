@@ -1,36 +1,54 @@
 import numpy as np
 
-def simple(game, player, reward_param=(1, 0, -1, 0)):
-    if game.winner is None:
-        return reward_param[-1]
-    elif game.winner == -1:
-        return reward_param[1]
-    elif game.winner == player:
-        return reward_param[0]
-    else:
-        return reward_param[2]
+
+class HeuristicWDLN(object):
+    def __init__(self, w=1, d=0, l=-1, not_ended=0):
+        # Reward parameters
+        self.w = w
+        self.d = d
+        self.l = l
+        self.not_ended = not_ended
+    
+    def evaluate(self, game, player):
+        if game.winner is None:
+            return self.not_ended
+        elif game.winner == -1:
+            return self.d
+        elif game.winner == player:
+            return self.w
+        else:
+            return self.l
 
 
-def simulation(game, player, n_sim=10, reward_param=(1, 0, -1)):
-    if game.winner is None:
-        simulated_games = []
-        reward = 0
-        for _ in range(n_sim):
-            game_s = game.copy()
-            while not game_s.is_ended:
-                coords = game_s.gameboard.all_available_coords
-                coord = coords[np.random.choice(len(coords))]
-                game_s.place_stone(*coord, game_s.turn_player)
-            if game_s.winner == -1:
-                reward += reward_param[-1]
-            elif game_s.winner == player:
-                reward += reward_param[0]
-            else:
-                reward += reward_param[2]
-        return reward / n_sim
-    elif game.winner == -1:
-        return reward_param[-1]
-    elif game.winner == player:
-        return reward_param[0]
-    else:
-        return reward_param[2]
+class HeuristicSimulate(object):
+    def __init__(self, w=1, d=0, l=-1, n_sim=10):
+        # Reward parameters
+        self.w = w
+        self.d = d
+        self.l = l
+        # Number of simulation
+        self.n_sim = n_sim
+    
+    def evaluate(self, game, player):
+        if game.winner is None:
+            simulated_games = []
+            reward = 0
+            for _ in range(self.n_sim):
+                game_s = game.copy()
+                while not game_s.is_ended:
+                    coords = game_s.gameboard.all_available_coords
+                    coord = coords[np.random.choice(len(coords))]
+                    game_s.place_stone(*coord, game_s.turn_player)
+                if game_s.winner == -1:
+                    reward += self.d
+                elif game_s.winner == player:
+                    reward += self.w
+                else:
+                    reward += self.l
+            return reward / self.n_sim
+        elif game.winner == -1:
+            return self.d
+        elif game.winner == player:
+            return self.w
+        else:
+            return self.l
