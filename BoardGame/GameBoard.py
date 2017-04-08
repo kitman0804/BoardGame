@@ -30,31 +30,38 @@ class GameBoard(object):
     def is_full(self):
         return np.all(self._array != -1)
     
-    @property
-    def is_reflectional0(self):
-        return np.all(self._array == self._array[::-1, :])
+    def is_equal_ref(self, axis=0):
+        b_0 = self._array
+        if axis == 0:
+            b_r = self._array[::-1, :]
+            return np.all(b_0 == b_r)
+        elif axis == 1:
+            b_r = self._array[:, ::-1]
+            return np.all(b_0 == b_r)
+        elif axis == 'd':
+            if self.shape[0] != self.shape[1]:
+                return False
+            else:
+                b_r = np.transpose(self._array)
+                return np.all(b_0 == b_r)
+        elif axis == 'ad':
+            if self.shape[0] != self.shape[1]:
+                return False
+            else:
+                b_r = np.transpose(self._array[:, ::-1])[:, ::-1]
+                return np.all(b_0 == b_r)
+        else:
+            raise ValueError('Invalid axis. (0, 1, \'d\', \'ad\')')
     
-    @property
-    def is_reflectional1(self):
-        return np.all(self._array == self._array[:, ::-1])
-    
-    @property
-    def is_rotational90(self):
+    def is_equal_rot(self, angle=90):
         if self.shape[0] != self.shape[1]:
             return False
+        elif angle in (90, 180, 270):
+            b_0 = self._array
+            b_r = np.rot90(self._array, k=angle // 90)
+            return np.all(b_0 == b_r)
         else:
-            r0 = self._array
-            ind = True
-            for i in range(1, 4):
-                r = np.rot90(r0, k=i)
-                ind = ind and np.all(r == r0)
-            return ind
-    
-    @property
-    def is_rotational180(self):
-        r0 = self._array
-        r = np.rot90(r0, k=2)
-        return np.all(r == r0)
+            raise ValueError('Invalid angle. (90, 180, 270)')
     
     @property
     def all_available_coords(self):
@@ -74,33 +81,50 @@ class GameBoard(object):
                 eq_coords.update({coord: [coord]})
                 continue
             # Reflective symmetry
-            if self.is_reflectional0:
-                e_coord = (self.m - 1 - coord[0], coord[1])
-                if e_coord in eq_coords.keys():
+            if self.is_equal_ref(axis=0):
+                eq_coord= (self.m - 1 - coord[0], coord[1])
+                if eq_coord in eq_coords.keys():
                     exist_equivalent = True
-                    eq_coords.get(e_coord).append(coord)
-            if self.is_reflectional1:
-                e_coord = (coord[0], self.n - 1 - coord[1])
-                if e_coord in eq_coords.keys():
+                    eq_coords.get(eq_coord).append(coord)
+            if self.is_equal_ref(axis=1):
+                eq_coord= (coord[0], self.n - 1 - coord[1])
+                if eq_coord in eq_coords.keys():
                     exist_equivalent = True
-                    eq_coords.get(e_coord).append(coord)
+                    eq_coords.get(eq_coord).append(coord)
+            if self.is_equal_ref(axis='d'):
+                eq_coord= (coord[1], coord[0])
+                if eq_coord in eq_coords.keys():
+                    exist_equivalent = True
+                    eq_coords.get(eq_coord).append(coord)
+            if self.is_equal_ref(axis='ad'):
+                eq_coord= (self.n - 1 - coord[1], self.m - 1 - coord[0])
+                if eq_coord in eq_coords.keys():
+                    exist_equivalent = True
+                    eq_coords.get(eq_coord).append(coord)
             # Rotational symmetry
-            if self.is_rotational180:
-                e_coord = (self.m - 1 - coord[0], self.n - 1 - coord[1])
-                if e_coord in eq_coords.keys():
+            if (self.is_equal_rot(angle=90) and
+                self.is_equal_rot(angle=180) and
+                self.is_equal_rot(angle=270)):
+                eq_coord= (coord[1], self.n - 1 - coord[0])
+                if eq_coord in eq_coords.keys():
                     exist_equivalent = True
-                    eq_coords.get(e_coord).append(coord)
-            if self.is_rotational90:
-                e_coord = (coord[1], self.n - 1 - coord[0])
-                if e_coord in eq_coords.keys():
+                    eq_coords.get(eq_coord).append(coord)
+                eq_coord= (self.m - 1 - coord[1], coord[0])
+                if eq_coord in eq_coords.keys():
                     exist_equivalent = True
-                    eq_coords.get(e_coord).append(coord)
-                e_coord = (self.m - 1 - coord[1], coord[0])
-                if e_coord in eq_coords.keys():
+                    eq_coords.get(eq_coord).append(coord)
+                eq_coord= (self.m - 1 - coord[0], self.n - 1 - coord[1])
+                if eq_coord in eq_coords.keys():
                     exist_equivalent = True
-                    eq_coords.get(e_coord).append(coord)
+                    eq_coords.get(eq_coord).append(coord)
+            elif self.is_equal_rot(angle=180):
+                eq_coord= (self.m - 1 - coord[0], self.n - 1 - coord[1])
+                if eq_coord in eq_coords.keys():
+                    exist_equivalent = True
+                    eq_coords.get(eq_coord).append(coord)
             if not exist_equivalent:
                 eq_coords.update({coord: [coord]})
+        eq_coords = {k: list(set(x)) for k, x in eq_coords.items()}
         return eq_coords
     
     def place_stone(self, row, col, player):
@@ -112,47 +136,26 @@ class GameBoard(object):
     def copy(self):
         return copy.deepcopy(self)
     
-    def _get_lines_passing(self, row, col):
-        board = self._array
-        n_row, n_col = board.shape
-        # Flatten the board into 1-D
-        b_flat = board.reshape(-1)
-        # Horizontal line (-) passing (row, col)
-        h_line = b_flat[row * n_col:row * n_col + n_col]
-        yield h_line
-        # Vertical line (|) passing (row, col)
-        v_line = b_flat[col::n_col]
-        yield v_line
-        # Anti-diagonal line (/) passing (row, col)
-        ad_start = max(col - row, (row - col) * n_col)
-        ad_end = min(n_row, row + n_col - col) * n_col
-        ad_line = b_flat[ad_start:ad_end + 1:n_col + 1]
-        yield ad_line
-        # Diagonal line (\) passing (row, col)
-        d_start = max(row + col, (row - (n_col - col - 1)) * n_col + n_col - 1)
-        d_end = min(n_row, row + col) * n_col
-        d_line = b_flat[d_start:d_end + 1:n_col - 1]
-        yield d_line
-    
-    def _get_all_lines(self):
-        board = self._array
-        n_row, n_col = board.shape
-        # All horizontal lines
-        for i in range(n_row):
-            yield board[i, :]
-        # All vertical lines
-        for j in range(n_col):
-            yield board[:, j]
-        # All diagonal and anti-diagonal lines
-        for i in range(n_row):
-            yield board[range(i, min(n_row, n_row + i)), range(0, min(n_row, n_row - i))]
-            yield board[:, ::-1][range(i, min(n_row, n_row + i)), range(0, min(n_row, n_row - i))]
-        for j in range(1, n_col):
-            yield board[range(0, min(n_col, n_col - j)), range(j, min(n_col, n_col + j))]
-            yield board[:, ::-1][range(0, min(n_col, n_col - j)), range(j, min(n_col, n_col + j))]
-    
     def get_lines(self, row=None, col=None):
+        board_array = self.array
+        n_row, n_col = board_array.shape
         if row is None or col is None:
-            return self._get_all_lines()
+            # All horizontal lines
+            for i in range(n_row):
+                yield board_array[i, :]
+            # All vertical lines
+            for j in range(n_col):
+                yield board_array[:, j]
+            # All diagonal & anti-diagonal lines
+            for i in range(-n_row + 1, n_col):
+                yield np.diagonal(board_array, offset=i)
+                yield np.diagonal(board_array[:, ::-1], offset=i)
         else:
-            return self._get_lines_passing(row=row, col=col)
+            # Horizontal line (-) passing (row, col)
+            yield board_array[row, :]
+            # Vertical line (|) passing (row, col)
+            yield board_array[:, col]
+            # Diagonal line (\) passing (row, col)
+            yield np.diagonal(board_array, offset=col - row)
+            # Anti-diagonal line (/) passing (row, col)
+            yield np.diagonal(board_array[:, ::-1], offset=n_col - col - 1 - row)
