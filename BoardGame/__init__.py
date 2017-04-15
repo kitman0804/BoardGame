@@ -1,2 +1,2 @@
-from .tictactoe import TicTacToe
-from .connectfour import ConnectFour
+from .tictactoe import *
+from .connectfour import *

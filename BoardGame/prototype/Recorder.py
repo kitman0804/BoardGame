@@ -1,7 +1,7 @@
 import json
 
 
-class GameRecorder(object):
+class Recorder(object):
     def __init__(self):
         self._turns = []
         self._winner = None

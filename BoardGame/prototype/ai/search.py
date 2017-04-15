@@ -3,14 +3,15 @@ from .GameTree import GameTree
 
 
 def minimax(node, depth, hfunc, use_symmetry=False):
-    root_player = node.root.game.turn_player
+    root_player = node.root_player
     # Current state
     current_game = node.game
-    current_player = current_game.turn_player
+    current_gameboard = current_game.gameboard
+    current_player = current_game.current_player
     if use_symmetry:
-        available_coords = current_game.gameboard.reduced_available_coords
+        available_coords = current_gameboard.eqivalent_coords_dict.keys()
     else:
-        available_coords = current_game.gameboard.all_available_coords
+        available_coords = current_gameboard.available_coords
     # Search
     if depth == 0 or current_game.is_ended:
         node.reward = hfunc(game=current_game, player=root_player)
@@ -49,11 +50,12 @@ def alpha_beta(node, depth, hfunc,
     root_player = node.root.game.turn_player
     # Current state
     current_game = node.game
-    current_player = current_game.turn_player
+    current_gameboard = current_game.gameboard
+    current_player = current_game.current_player
     if use_symmetry:
-        available_coords = current_game.gameboard.reduced_available_coords
+        available_coords = current_gameboard.eqivalent_coords_dict.keys()
     else:
-        available_coords = current_game.gameboard.all_available_coords
+        available_coords = current_gameboard.available_coords
     # Search
     if depth == 0 or current_game.is_ended:
         node.reward = hfunc(game=current_game, player=root_player)
@@ -107,11 +109,12 @@ def modified_minimax(node, depth, hfunc, use_symmetry=False):
     root_player = node.root.game.turn_player
     # Current state
     current_game = node.game
-    current_player = current_game.turn_player
+    current_gameboard = current_game.gameboard
+    current_player = current_game.current_player
     if use_symmetry:
-        available_coords = current_game.gameboard.reduced_available_coords
+        available_coords = current_gameboard.eqivalent_coords_dict.keys()
     else:
-        available_coords = current_game.gameboard.all_available_coords
+        available_coords = current_gameboard.available_coords
     # Search
     if depth == 0 or current_game.is_ended:
         node.reward = hfunc(game=current_game, player=root_player)
@@ -156,11 +159,12 @@ def modified_alpha_beta(node, depth, hfunc,
     root_player = node.root.game.turn_player
     # Current state
     current_game = node.game
-    current_player = current_game.turn_player
+    current_gameboard = current_game.gameboard
+    current_player = current_game.current_player
     if use_symmetry:
-        available_coords = current_game.gameboard.reduced_available_coords
+        available_coords = current_gameboard.eqivalent_coords_dict.keys()
     else:
-        available_coords = current_game.gameboard.all_available_coords
+        available_coords = current_gameboard.available_coords
     # Search
     if depth == 0 or current_game.is_ended:
         node.reward = hfunc(game=current_game, player=root_player)

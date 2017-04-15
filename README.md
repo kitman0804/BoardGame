@@ -2,7 +2,7 @@
 
 Board games in Python with UI.
 
-Games included in current version:
+Games currently included:
 - [Tic-Tac-Toe](https://en.wikipedia.org/wiki/Tic-tac-toe)
 - [Connect Four](https://en.wikipedia.org/wiki/Connect_Four)
 
@@ -18,14 +18,18 @@ Required packages:
 - [anytree](http://anytree.readthedocs.io/en/latest/)
 - [PyQt5](https://pypi.python.org/pypi/PyQt5/5.8.1)
 
-### How to start a game
+### Start a game
 
 1. Download the repository [here](https://github.com/kitman0804/BoardGame/archive/master.zip) (and unzip it if needed).
 2. Open your console.
-3. Change your directory to downloaded folder.
+3. Change directory `cd` to the downloaded folder.
 4. Run `python -m play_ui game_code_below`.
-    - Tic-Tac-Toe: `tictactoe`.
-    - Connect Four: `connectfour`.
+
+| Game         | Game code     |
+|:------------ |:------------- |
+| Tic-Tac-Toe  | `tictactoe`   |
+| Connect Four | `connectfour` |
+
 5. Have fun!
 
 ### AI/Algorithms
@@ -41,15 +45,18 @@ Required packages:
 
 #### Heuristic
 
-- Simple score for Win/Draw/Lose/Game not ended.
+- Simple score for Win/Draw/Lose/Not ended.
 - Simulation.
 
 ### What's next
 
-- Add more games, e.g. Gomoku, Connect6.
+- Add more games, e.g.
+  - [Gomoku](https://en.wikipedia.org/wiki/Gomoku),
+  - [Renju](https://en.wikipedia.org/wiki/Renju)
+  - [Connect6](https://en.wikipedia.org/wiki/Connect6).
 - Make use of Machine Learning in the heuristic.
 - Add Monte Carlo Tree Search.
-- Improve searching speed.
+- Improve AI speed.
 
 ### Credits
 

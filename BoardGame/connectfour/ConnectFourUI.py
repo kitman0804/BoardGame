@@ -9,9 +9,8 @@ from PyQt5.QtWidgets import (QApplication, qApp,
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTimer, QSize
 from .ConnectFour import ConnectFour
-from ..players import Human, Monkey, RobotTS
-from ..ai import search
-from ..ai.heuristic_func import HeuristicWDLN, HeuristicSimulate
+from .players import *
+from .ai import *
 
 
 REGISTERED_PLAYER_TYPES = (Human, Monkey, RobotTS)
@@ -19,27 +18,15 @@ REGISTERED_PLAYER_TYPES = (Human, Monkey, RobotTS)
 PLAYERS = {
     'Human': Human(),
     'Monkey': Monkey(),
-    'Robot-MM4': RobotTS(
-        search_func=search.minimax,
-        depth=4),
-    'Robot-MM4-S': RobotTS(
-        search_func=search.minimax,
-        depth=4,
-        use_symmetry=True),
-    'Robot-MM4-SIM-S': RobotTS(
-        search_func=search.minimax,
-        depth=4,
-        hfunc=HeuristicSimulate().evaluate,
-        use_symmetry=True),
     'Robot-MAB2-SIM-S': RobotTS(
         search_func=search.modified_alpha_beta,
         depth=2,
-        hfunc=HeuristicSimulate(n_sim=200).evaluate,
+        hfunc=heuristic.Simulate(n_sim=200).evaluate,
         use_symmetry=True),
     'Robot-MAB4-SIM-S': RobotTS(
         search_func=search.modified_alpha_beta,
         depth=4,
-        hfunc=HeuristicSimulate(n_sim=10).evaluate,
+        hfunc=heuristic.Simulate(n_sim=10).evaluate,
         use_symmetry=True),
 }
 
@@ -118,14 +105,6 @@ class ConnectFourUI(QWidget):
         return self._gameboard_buttons
     
     @property
-    def players(self):
-        return self._game.players
-    
-    @property
-    def turn_player(self):
-        return self._game.turn_player
-    
-    @property
     def column_buttons(self):
         return self._column_buttons
     
@@ -192,9 +171,9 @@ class ConnectFourUI(QWidget):
             else:
                 for _, b in self._gameboard_buttons.items():
                     b.remove_border()
-                btn.setIcon(QIcon(self.icons[self.turn_player]))
+                btn.setIcon(QIcon(self.icons[self._game.current_player]))
                 btn.add_border('border: 1px solid #FF0000;')
-                self._game.place_stone(row=row, col=col, player=self.turn_player)
+                self._game.place_stone(row=row, col=col, stone=self._game.current_player)
                 self._message_box.setText('')
             # Next turn
             self.next_turn()
@@ -210,7 +189,7 @@ class ConnectFourUI(QWidget):
             self._message_box.setText(msg)
         else:
             qApp.processEvents()
-            self.players[self.turn_player].decide_ui(self)
+            self._game.players[self._game.current_player].decide_ui(self)
     
     def reset(self):
         self._started = True
@@ -225,7 +204,7 @@ class ConnectFourUI(QWidget):
             btn.reset()
         # Start game
         qApp.processEvents()
-        self.players[self.turn_player].decide_ui(self)
+        self._game.players[self._game.current_player].decide_ui(self)
     
     def restart(self):
         self.reset()

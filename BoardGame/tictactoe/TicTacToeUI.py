@@ -9,19 +9,13 @@ from PyQt5.QtWidgets import (QApplication, qApp,
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QTimer, QSize
 from .TicTacToe import TicTacToe
-from ..players import Human, Monkey, RobotTS
-from ..ai import search
-from ..ai.heuristic_func import HeuristicWDLN, HeuristicSimulate
+from .players import *
+from .ai import *
 
-
-REGISTERED_PLAYER_TYPES = (Human, Monkey, RobotTS)
 
 PLAYERS = {
     'Human': Human(),
     'Monkey': Monkey(),
-    'Robot-MM6': RobotTS(
-        search_func=search.minimax,
-        depth=6),
     'Robot-MM6-S': RobotTS(
         search_func=search.minimax,
         depth=6,
@@ -80,25 +74,12 @@ class TicTacToeUI(QWidget):
         return self._game
     
     @property
-    def gameboard(self):
-        return self._game.gameboard
-    
-    @property
     def gameboard_buttons(self):
         return self._gameboard_buttons
-    
-    @property
-    def players(self):
-        return self._game.players
-    
-    @property
-    def turn_player(self):
-        return self._game.turn_player
     
     def init_ui(self):
         self.center()
         self.setWindowTitle("TicTacToe")
-        self.setStyleSheet('background-color: #D7CCC8;')
         # Players
         self._players_selector = QGridLayout()
         self._players = list()
@@ -116,7 +97,7 @@ class TicTacToeUI(QWidget):
         self._gameboard_buttons = dict()
         for row in range(self.m):
             for col in range(self.n):
-                btn = TicTacToeUIButton('', parent=self, style_sheet='background-color: #D7CCC8;')
+                btn = TicTacToeUIButton('', parent=self)
                 btn.clicked.connect(functools.partial(self.click_gameboard, row, col))
                 self._grid.addWidget(btn, row, col)
                 self._gameboard_buttons.update({(row, col): btn})
@@ -145,15 +126,15 @@ class TicTacToeUI(QWidget):
             pass
         else:
             btn = self._gameboard_buttons.get((row, col))
-            if self.gameboard.array[row, col] != -1:
+            if self._game.gameboard.array[row, col] != -1:
                 msg = 'It is occupied. Please select another one.'
                 self._message_box.setText(msg)
             else:
                 for _, b in self._gameboard_buttons.items():
                     b.remove_border()
-                btn.setIcon(QIcon(self.icons[self._game.turn_player]))
+                btn.setIcon(QIcon(self.icons[self._game.current_player]))
                 btn.add_border('border: 1px solid #FF0000;')
-                self._game.place_stone(row=row, col=col, player=self._game.turn_player)
+                self._game.place_stone(row=row, col=col, stone=self._game.current_player)
                 self._message_box.setText('')
             # Next turn
             self.next_turn()
@@ -169,7 +150,7 @@ class TicTacToeUI(QWidget):
             self._message_box.setText(msg)
         else:
             qApp.processEvents()
-            self.players[self.turn_player].decide_ui(self)
+            self._game.players[self._game.current_player].decide_ui(self)
     
     def reset(self):
         self._started = True
@@ -182,7 +163,7 @@ class TicTacToeUI(QWidget):
             btn.reset()
         # Start game
         qApp.processEvents()
-        self.players[self.turn_player].decide_ui(self)
+        self._game.players[self._game.current_player].decide_ui(self)
     
     def restart(self):
         self.reset()

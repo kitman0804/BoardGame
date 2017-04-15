@@ -1,12 +1,12 @@
 import numpy as np
-from ..Player import Player
-from ..ai import GameTree, search, heuristic_func
+from .Player import Player
+from ..ai import GameTree, search, heuristic
 
 
 class Human(Player):
     is_ai = False
-    def __init__(self, name='Human', player=0, hint=False):
-        super().__init__(player=player, name=name)
+    def __init__(self, name='Human', stone=0, hint=False):
+        super().__init__(name=name, stone=stone)
         self._hint = hint
     
     @staticmethod
@@ -15,7 +15,7 @@ class Human(Player):
         search.minmax(
             node=tree,
             depth=2,
-            hfunc=heuristic_func.simple,
+            hfunc=heuristic.Simple,
             use_symmetry=False
         )
         coords_reward = [(child.name, child.reward) for child in tree.children]
@@ -32,7 +32,7 @@ class Human(Player):
             print('Suggestions:')
             print(coord_choices)
         coord = input('{:}, what\'s your decision? '.format(self.name))
-        if coordcoord.lower() == 'p':
+        if coord.lower() == 'p':
             return 'pause'
         else:
             try:

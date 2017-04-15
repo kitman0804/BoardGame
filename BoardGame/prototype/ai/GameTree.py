@@ -56,10 +56,6 @@ class GameTree(Node):
     def game(self):
         return self._game
     
-    @property
-    def winner(self):
-        return self._game.winner
-    
     def clean_reward(self):
         self.reward = None
         for node in self.descendants:

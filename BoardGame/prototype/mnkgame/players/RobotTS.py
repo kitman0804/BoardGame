@@ -1,16 +1,15 @@
 import numpy as np
-from ..Player import Player
-from ..ai import GameTree, search
-from BoardGame.ai.heuristic_func import HeuristicWDLN
+from .Player import Player
+from ..ai import GameTree, search, heuristic
 
 
 class RobotTS(Player):
     is_ai = True
-    def __init__(self, player=0, name='R0bot',
+    def __init__(self, name='R0bot', stone=0,
                  search_func=search.modified_alpha_beta,
-                 depth=4, hfunc=HeuristicWDLN().evaluate, use_symmetry=False,
+                 depth=4, hfunc=heuristic.Simple().evaluate, use_symmetry=False,
                  silent=True):
-        super().__init__(player=player, name=name)
+        super().__init__(name=name, stone=stone)
         self._search_func = search_func
         self._depth = depth
         self._hfunc = hfunc
@@ -31,7 +30,7 @@ class RobotTS(Player):
         if self._use_symmetry:
             coord_choices = list()
             for x in best_coords:
-                coord_choices.extend(game.gameboard.equivalent_coords.get(x, [x]))
+                coord_choices.extend(game.gameboard.equivalent_coords_dict.get(x, [x]))
             coord_choices = list(set(coord_choices))
         else:
             coord_choices = best_coords

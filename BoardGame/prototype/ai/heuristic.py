@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class HeuristicWDLN(object):
+class Simple(object):
     def __init__(self, w=1, d=0, l=-1, not_ended=0):
         # Reward parameters
         self.w = w
@@ -20,7 +20,7 @@ class HeuristicWDLN(object):
             return self.l
 
 
-class HeuristicSimulate(object):
+class Simulate(object):
     def __init__(self, w=1, d=0, l=-1, n_sim=10):
         # Reward parameters
         self.w = w
