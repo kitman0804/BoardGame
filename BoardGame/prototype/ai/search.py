@@ -9,7 +9,7 @@ def minimax(node, depth, hfunc, use_symmetry=False):
     current_gameboard = current_game.gameboard
     current_player = current_game.current_player
     if use_symmetry:
-        available_coords = current_gameboard.eqivalent_coords_dict.keys()
+        available_coords = current_gameboard.equivalent_coords_dict.keys()
     else:
         available_coords = current_gameboard.available_coords
     # Search
@@ -47,13 +47,13 @@ def minimax(node, depth, hfunc, use_symmetry=False):
 
 def alpha_beta(node, depth, hfunc,
                alpha=-np.inf, beta=np.inf, equal_sign=True, use_symmetry=False):
-    root_player = node.root.game.turn_player
+    root_player = node.root_player
     # Current state
     current_game = node.game
     current_gameboard = current_game.gameboard
     current_player = current_game.current_player
     if use_symmetry:
-        available_coords = current_gameboard.eqivalent_coords_dict.keys()
+        available_coords = current_gameboard.equivalent_coords_dict.keys()
     else:
         available_coords = current_gameboard.available_coords
     # Search
@@ -106,13 +106,13 @@ def alpha_beta(node, depth, hfunc,
 
 
 def modified_minimax(node, depth, hfunc, use_symmetry=False):
-    root_player = node.root.game.turn_player
+    root_player = node.root_player
     # Current state
     current_game = node.game
     current_gameboard = current_game.gameboard
     current_player = current_game.current_player
     if use_symmetry:
-        available_coords = current_gameboard.eqivalent_coords_dict.keys()
+        available_coords = current_gameboard.equivalent_coords_dict.keys()
     else:
         available_coords = current_gameboard.available_coords
     # Search
@@ -156,13 +156,13 @@ def modified_minimax(node, depth, hfunc, use_symmetry=False):
 
 def modified_alpha_beta(node, depth, hfunc,
                         alpha=-np.inf, beta=np.inf, use_symmetry=False):
-    root_player = node.root.game.turn_player
+    root_player = node.root_player
     # Current state
     current_game = node.game
     current_gameboard = current_game.gameboard
     current_player = current_game.current_player
     if use_symmetry:
-        available_coords = current_gameboard.eqivalent_coords_dict.keys()
+        available_coords = current_gameboard.equivalent_coords_dict.keys()
     else:
         available_coords = current_gameboard.available_coords
     # Search
