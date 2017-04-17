@@ -1,24 +1,27 @@
-import copy
 from .GameBoard import GameBoard
 
 
 class Core(object):
-    def __init__(self, m, n, k, player_cycle=(0, 1)):
-        self._m = m
-        self._n = n
+    def __init__(self, m=3, n=3, k=3, player_cycle=(0, 1),
+                 gameboard=None, turn=None, winner=None):
         self._k = k
         self._player_cycle = player_cycle
-        self._gameboard = GameBoard(shape=(m, n))
-        self._turn = 0
-        self._winner = None
+        if gameboard is None:
+            self._gameboard = GameBoard(shape=(m, n))
+        elif isinstance(gameboard, GameBoard):
+            self._gameboard = gameboard.copy()
+        else:
+            raise TypeError('Invalid gameboard.')
+        self._turn = 0 if turn is None else turn
+        self._winner = None if winner is None else winner
     
     @property
     def m(self):
-        return self._m
+        return self._gameboard.m
     
     @property
     def n(self):
-        return self._n
+        return self._gameboard.n
     
     @property
     def k(self):
@@ -74,7 +77,7 @@ class Core(object):
         return self._winner is not None
     
     def place_stone(self, row, col, stone):
-        if (row not in range(self._m) and col not in range(self._n)):
+        if (row not in range(self.m) and col not in range(self.n)):
             raise IndexError('Invalid row/col.')
         if stone not in self._player_cycle:
             raise ValueError('Invalid stone.')
@@ -114,10 +117,10 @@ class Core(object):
     
     def copy(self):
         clone = type(self)(
-            m=self._m, n=self._n, k=self._k,
-            player_cycle=self._player_cycle
+            k=self._k,
+            player_cycle=self._player_cycle,
+            gameboard=self._gameboard,
+            turn=self._turn,
+            winner=self._winner
         )
-        clone.gameboard = self.gameboard.copy()
-        clone.turn = self._turn
-        clone.winner = self._winner
         return clone

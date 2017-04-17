@@ -3,8 +3,11 @@ import numpy as np
 
 
 class GameBoard(object):
-    def __init__(self, shape=(3, 3)):
-        self._array = -np.ones(shape=shape, dtype=int)
+    def __init__(self, shape=(3, 3), array=None):
+        if array is not None:
+            self.array = array
+        else:
+            self._array = -np.ones(shape=shape, dtype=int)
     
     def __str__(self):
         return str(self._array)
@@ -150,6 +153,6 @@ class GameBoard(object):
         self._array = -np.ones(shape=self.shape, dtype=int)
     
     def copy(self):
-        clone = type(self)(shape=self.shape)
-        clone.array = copy.deepcopy(self.array)
+        a = copy.deepcopy(self.array)
+        clone = type(self)(array=a)
         return clone
