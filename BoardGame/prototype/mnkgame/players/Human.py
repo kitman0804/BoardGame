@@ -1,6 +1,7 @@
 import numpy as np
 from .Player import Player
-from ..ai import GameTree, search, heuristic
+from ..ai import *
+from ..ai.search import Minimax
 
 
 class Human(Player):
@@ -11,13 +12,9 @@ class Human(Player):
     
     @staticmethod
     def get_hint(game):
-        tree = GameTree('current', game=game)
-        search.minmax(
-            node=tree,
-            depth=2,
-            hfunc=heuristic.Simple,
-            use_symmetry=False
-        )
+        tree = GameTree('current', game_core=game.core)
+        mm = Minimax(hfunc=heuristic.Simple().evaluate, use_symmetry=False)
+        mm.search(node=tree, depth=2)
         coords_reward = [(child.name, child.reward) for child in tree.children]
         best_reward = max(r for _, r in coords_reward)
         coord_choices = [m for m, r in coords_reward if r == best_reward]
@@ -27,7 +24,7 @@ class Human(Player):
         print(game.gameboard.array)
         if self._hint:
             tree, coord_choices = self.get_hint(game)
-            print('You are player {:}.'.format(game.turn_player))
+            print('You are player {:}.'.format(game.current_player))
             tree.show(1)
             print('Suggestions:')
             print(coord_choices)

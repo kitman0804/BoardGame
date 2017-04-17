@@ -6,6 +6,9 @@ class GameBoard(object):
     def __init__(self, shape=(3, 3)):
         self._array = -np.ones(shape=shape, dtype=int)
     
+    def __str__(self):
+        return str(self._array)
+    
     @property
     def array(self):
         return self._array

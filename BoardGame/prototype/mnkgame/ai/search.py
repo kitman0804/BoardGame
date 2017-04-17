@@ -2,212 +2,170 @@ import numpy as np
 from .GameTree import GameTree
 
 
-def minimax(node, depth, hfunc, use_symmetry=False):
-    root_player = node.root_player
-    # Current state
-    current_game = node.game
-    current_gameboard = current_game.gameboard
-    current_player = current_game.current_player
-    if use_symmetry:
-        available_coords = current_gameboard.equivalent_coords_dict.keys()
-    else:
-        available_coords = current_gameboard.available_coords
-    # Search
-    if depth == 0 or current_game.is_ended:
-        node.reward = hfunc(game=current_game, player=root_player)
-    elif current_player == root_player:
-        best_value = -np.inf
-        for coord in available_coords:
-            game = current_game.copy()
-            game.place_stone(*coord, current_player)
-            child_node = GameTree(name=coord, game=game, parent=node)
-            minimax(
-                node=child_node,
-                depth=depth-1,
-                hfunc=hfunc,
-                use_symmetry=use_symmetry
-            )
-            best_value = max(best_value, child_node.reward)
-        node.reward = best_value
-    else:
-        best_value = np.inf
-        for coord in available_coords:
-            game = current_game.copy()
-            game.place_stone(*coord, current_player)
-            child_node = GameTree(name=coord, game=game, parent=node)
-            minimax(
-                node=child_node,
-                depth=depth-1,
-                hfunc=hfunc,
-                use_symmetry=use_symmetry
-            )
-            best_value = min(best_value, child_node.reward)
-        node.reward = best_value
-
-
-def alpha_beta(node, depth, hfunc,
-               alpha=-np.inf, beta=np.inf, equal_sign=True, use_symmetry=False):
-    root_player = node.root_player
-    # Current state
-    current_game = node.game
-    current_gameboard = current_game.gameboard
-    current_player = current_game.current_player
-    if use_symmetry:
-        available_coords = current_gameboard.equivalent_coords_dict.keys()
-    else:
-        available_coords = current_gameboard.available_coords
-    # Search
-    if depth == 0 or current_game.is_ended:
-        node.reward = hfunc(game=current_game, player=root_player)
-    elif current_player == root_player:
-        best_value = -np.inf
-        for coord in available_coords:
-            game = current_game.copy()
-            game.place_stone(*coord, current_player)
-            child_node = GameTree(name=coord, game=game, parent=node)
-            alpha_beta(
-                node=child_node,
-                depth=depth-1,
-                hfunc=hfunc,
-                alpha=alpha,
-                beta=beta,
-                equal_sign=equal_sign,
-                use_symmetry=use_symmetry
-            )
-            best_value = max(best_value, child_node.reward)
-            alpha = max(alpha, best_value)
-            if beta < alpha:
-                break
-            if equal_sign and beta == alpha:
-                break
-        node.reward = best_value
-    else:
-        best_value = np.inf
-        for coord in available_coords:
-            game = current_game.copy()
-            game.place_stone(*coord, current_player)
-            child_node = GameTree(name=coord, game=game, parent=node)
-            alpha_beta(
-                node=child_node,
-                depth=depth-1,
-                hfunc=hfunc,
-                alpha=alpha,
-                beta=beta,
-                equal_sign=equal_sign,
-                use_symmetry=use_symmetry
-            )
-            best_value = min(best_value, child_node.reward)
-            beta = min(beta, best_value)
-            if beta < alpha:
-                break
-            if equal_sign and beta == alpha:
-                break
-        node.reward = best_value
-
-
-def modified_minimax(node, depth, hfunc, use_symmetry=False):
-    root_player = node.root_player
-    # Current state
-    current_game = node.game
-    current_gameboard = current_game.gameboard
-    current_player = current_game.current_player
-    if use_symmetry:
-        available_coords = current_gameboard.equivalent_coords_dict.keys()
-    else:
-        available_coords = current_gameboard.available_coords
-    # Search
-    if depth == 0 or current_game.is_ended:
-        node.reward = hfunc(game=current_game, player=root_player)
-    else:
-        # Create child nodes and check winner
-        win_state_found = False
-        for coord in available_coords:
-            game = current_game.copy()
-            game.place_stone(*coord, current_player)
-            child_node = GameTree(name=coord, game=game, parent=node)
-            if child_node.game.winner == current_player:
-                win_state_found = True
-                # No need to search further if current player win
-                depth = 1
-        # Apply minimax
-        if current_player == root_player:
+class Minimax(object):
+    def __init__(self, hfunc, use_symmetry=False):
+        self.hfunc = hfunc
+        self.use_symmetry = use_symmetry
+    
+    def search(self, node, depth):
+        root_player = node.root_player
+        # Current game
+        game = node.game_core
+        player = node.player
+        gameboard = node.gameboard
+        if self.use_symmetry:
+            available_coords = gameboard.equivalent_coords_dict.keys()
+        else:
+            available_coords = gameboard.available_coords
+        # Search
+        if depth <= 0 or game.winner is not None:
+            node.reward = self.hfunc(game=game, player=root_player)
+        elif player == root_player:
             best_value = -np.inf
-            for child_node in node.children:
-                modified_minimax(
-                    node=child_node,
-                    depth=depth-1,
-                    hfunc=hfunc,
-                    use_symmetry=use_symmetry
-                )
+            for coord in available_coords:
+                game1 = game.copy()
+                game1.place_stone(*coord, player)
+                child_node = GameTree(name=coord, game_core=game1, parent=node)
+                self.search(node=child_node, depth=depth-1)
                 best_value = max(best_value, child_node.reward)
             node.reward = best_value
         else:
             best_value = np.inf
-            for child_node in node.children:
-                modified_minimax(
-                    node=child_node,
-                    depth=depth-1,
-                    hfunc=hfunc,
-                    use_symmetry=use_symmetry
-                )
+            for coord in available_coords:
+                game1 = game.copy()
+                game1.place_stone(*coord, player)
+                child_node = GameTree(name=coord, game_core=game1, parent=node)
+                self.search(node=child_node, depth=depth-1)
                 best_value = min(best_value, child_node.reward)
             node.reward = best_value
 
 
-def modified_alpha_beta(node, depth, hfunc,
-                        alpha=-np.inf, beta=np.inf, use_symmetry=False):
-    root_player = node.root_player
-    # Current state
-    current_game = node.game
-    current_gameboard = current_game.gameboard
-    current_player = current_game.current_player
-    if use_symmetry:
-        available_coords = current_gameboard.equivalent_coords_dict.keys()
-    else:
-        available_coords = current_gameboard.available_coords
-    # Search
-    if depth == 0 or current_game.is_ended:
-        node.reward = hfunc(game=current_game, player=root_player)
-    else:
-        # Create child nodes and check winner
-        win_state_found = False
-        for coord in available_coords:
-            game = current_game.copy()
-            game.place_stone(*coord, current_player)
-            child_node = GameTree(name=coord, game=game, parent=node)
-            if child_node.game.winner == current_player:
-                win_state_found = True
-                # No need to search further if current player win
-                depth = 1
-        if current_player == root_player:
+class AlphaBeta(object):
+    def __init__(self, hfunc, equal_sign=True, use_symmetry=False):
+        self.hfunc = hfunc
+        self.equal_sign = equal_sign
+        self.use_symmetry = use_symmetry
+    
+    def search(self, node, depth, alpha=-np.inf, beta=np.inf):
+        root_player = node.root_player
+        # Current game
+        game = node.game_core
+        player = node.player
+        gameboard = node.gameboard
+        if self.use_symmetry:
+            available_coords = gameboard.equivalent_coords_dict.keys()
+        else:
+            available_coords = gameboard.available_coords
+        # Search
+        if depth <= 0 or game.winner is not None:
+            node.reward = self.hfunc(game=game, player=root_player)
+        elif player == root_player:
             best_value = -np.inf
-            for child_node in node.children:
-                modified_alpha_beta(
-                    node=child_node,
-                    depth=depth-1,
-                    hfunc=hfunc,
-                    alpha=alpha,
-                    beta=beta,
-                    use_symmetry=use_symmetry
-                )
+            for coord in available_coords:
+                game1 = game.copy()
+                game1.place_stone(*coord, player)
+                child_node = GameTree(name=coord, game_core=game1, parent=node)
+                self.search(node=child_node, depth=depth-1, alpha=alpha, beta=beta)
                 best_value = max(best_value, child_node.reward)
                 alpha = max(alpha, best_value)
                 if beta < alpha:
                     break
+                elif beta == alpha and self.equal_sign:
+                    break
             node.reward = best_value
         else:
             best_value = np.inf
-            for child_node in node.children:
-                modified_alpha_beta(
-                    node=child_node,
-                    depth=depth-1,
-                    hfunc=hfunc,
-                    alpha=alpha,
-                    beta=beta,
-                    use_symmetry=use_symmetry
-                )
+            for coord in available_coords:
+                game1 = game.copy()
+                game1.place_stone(*coord, player)
+                child_node = GameTree(name=coord, game_core=game1, parent=node)
+                self.search(node=child_node, depth=depth-1, alpha=alpha, beta=beta)
                 best_value = min(best_value, child_node.reward)
                 beta = min(beta, best_value)
                 if beta < alpha:
                     break
+                elif beta == alpha and self.equal_sign:
+                    break
+            node.reward = best_value
+
+
+class ModifiedAlphaBeta(object):
+    def __init__(self, hfunc, equal_sign=False, use_symmetry=False):
+        self.hfunc = hfunc
+        self.equal_sign = equal_sign
+        self.use_symmetry = use_symmetry
+    
+    def search(self, node, depth, alpha=-np.inf, beta=np.inf):
+        root_player = node.root_player
+        # Current game
+        game = node.game_core
+        player = node.player
+        gameboard = node.gameboard
+        if self.use_symmetry:
+            available_coords = gameboard.equivalent_coords_dict.keys()
+        else:
+            available_coords = gameboard.available_coords
+        # Search
+        if depth <= 0 or game.winner is not None:
+            node.reward = self.hfunc(game=game, player=root_player)
+        else:
+            # Create child nodes and check winner
+            win_state_found = False
+            for coord in available_coords:
+                game1 = game.copy()
+                game1.place_stone(*coord, player)
+                child_node = GameTree(name=coord, game_core=game1, parent=node)
+                if player == child_node.game_core.winner:
+                    win_state_found = True
+                    depth = 1  # No need to search further
+            if player == root_player:
+                best_value = -np.inf
+                for child_node in node.children:
+                    self.search(node=child_node, depth=depth-1, alpha=alpha, beta=beta)
+                    best_value = max(best_value, child_node.reward)
+                    alpha = max(alpha, best_value)
+                    if beta < alpha:
+                        break
+                    elif beta == alpha and self.equal_sign:
+                        break
+                node.reward = best_value
+            else:
+                best_value = np.inf
+                for child_node in node.children:
+                    self.search(node=child_node, depth=depth-1, alpha=alpha, beta=beta)
+                    best_value = min(best_value, child_node.reward)
+                    beta = min(beta, best_value)
+                    if beta < alpha:
+                        break
+                    elif beta == alpha and self.equal_sign:
+                        break
+                node.reward = best_value
+
+
+class Negamax(object):
+    def __init__(self, hfunc, use_symmetry=False):
+        self.hfunc = hfunc
+        self.use_symmetry = use_symmetry
+    
+    def search(self, node, depth):
+        root_player = node.root_player
+        # Current game
+        game = node.game_core
+        player = node.player
+        gameboard = node.gameboard
+        if self.use_symmetry:
+            available_coords = gameboard.equivalent_coords_dict.keys()
+        else:
+            available_coords = gameboard.available_coords
+        # Search
+        if depth <= 0 or game.winner is not None:
+            node.reward = self.hfunc(game=game, player=root_player)
+        else:
+            best_value = -np.inf
+            for coord in available_coords:
+                game1 = game.copy()
+                game1.place_stone(*coord, player)
+                child_node = GameTree(name=coord, game_core=game1, parent=node)
+                self.search(node=child_node, depth=depth-1)
+                best_value = max(best_value, -child_node.reward)
             node.reward = best_value

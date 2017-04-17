@@ -17,17 +17,22 @@ PLAYERS = {
     'Human': Human(),
     'Monkey': Monkey(),
     'Robot-MM6-S': RobotTS(
-        search_func=search.minimax,
-        depth=6,
-        use_symmetry=True),
+        search_method=Minimax(
+            hfunc=heuristic.Simple().evaluate,
+            use_symmetry=True),
+        depth=6),
     'Robot-AB6-S': RobotTS(
-        search_func=search.alpha_beta,
-        depth=6,
-        use_symmetry=True),
+        search_method=AlphaBeta(
+            hfunc=heuristic.Simple().evaluate,
+            equal_sign=False,
+            use_symmetry=True),
+        depth=6),
     'Robot-MAB9-S': RobotTS(
-        search_func=search.modified_alpha_beta,
-        depth=6,
-        use_symmetry=True),
+        search_method=ModifiedAlphaBeta(
+            hfunc=heuristic.Simple().evaluate,
+            equal_sign=False,
+            use_symmetry=True),
+        depth=9),
 }
 
 

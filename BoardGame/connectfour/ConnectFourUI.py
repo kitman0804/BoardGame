@@ -19,15 +19,17 @@ PLAYERS = {
     'Human': Human(),
     'Monkey': Monkey(),
     'Robot-MAB2-SIM-S': RobotTS(
-        search_func=search.modified_alpha_beta,
-        depth=2,
-        hfunc=heuristic.Simulate(n_sim=200).evaluate,
-        use_symmetry=True),
+        search_method=ModifiedAlphaBeta(
+            hfunc=heuristic.Simulate(n_sim=100).evaluate,
+            equal_sign=False,
+            use_symmetry=True),
+        depth=2),
     'Robot-MAB4-SIM-S': RobotTS(
-        search_func=search.modified_alpha_beta,
-        depth=4,
-        hfunc=heuristic.Simulate(n_sim=10).evaluate,
-        use_symmetry=True),
+        search_method=ModifiedAlphaBeta(
+            hfunc=heuristic.Simulate(n_sim=20).evaluate,
+            equal_sign=False,
+            use_symmetry=True),
+        depth=4),
 }
 
 

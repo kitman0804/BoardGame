@@ -1,33 +1,29 @@
 import numpy as np
 from .Player import Player
-from ..ai import GameTree, search, heuristic
+from ..ai import GameTree, heuristic
+from ..ai.search import *
 
 
 class RobotTS(Player):
     is_ai = True
     def __init__(self, name='R0bot', stone=0,
-                 search_func=search.modified_alpha_beta,
-                 depth=4, hfunc=heuristic.Simple().evaluate, use_symmetry=False,
+                 search_method=Minimax(
+                    hfunc=heuristic.Simple().evaluate,
+                    use_symmetry=True),
+                 depth=4,
                  silent=True):
         super().__init__(name=name, stone=stone)
-        self._search_func = search_func
+        self._search_method = search_method
         self._depth = depth
-        self._hfunc = hfunc
-        self._use_symmetry = use_symmetry
         self._silent = silent
     
     def decide(self, game):
-        tree = GameTree('current', game=game)
-        self._search_func(
-            node=tree,
-            depth=self._depth,
-            hfunc=self._hfunc,
-            use_symmetry=self._use_symmetry
-        )
+        tree = GameTree('current', game_core=game.core)
+        self._search_method.search(node=tree, depth=self._depth)
         coords_reward = [(child.name, child.reward) for child in tree.children]
         best_reward = max(r for _, r in coords_reward)
         best_coords = [m for m, r in coords_reward if r == best_reward]
-        if self._use_symmetry:
+        if self._search_method.use_symmetry:
             coord_choices = list()
             for x in best_coords:
                 coord_choices.extend(game.gameboard.equivalent_coords_dict.get(x, [x]))
@@ -37,7 +33,7 @@ class RobotTS(Player):
         coord = coord_choices[np.random.choice(range(len(coord_choices)))]
         if not self._silent:
             print(game.turn)
-            print('root:', tree.root.game.turn_player)
+            print('root:', tree.root_player)
             print(game.gameboard.array)
             tree.show(1)
             print(coord_choices)
