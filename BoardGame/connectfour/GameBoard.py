@@ -2,8 +2,8 @@ from ..prototype.mnkgame.GameBoard import GameBoard
 
 
 class GameBoard(GameBoard):
-    def __init__(self):
-        super().__init__(shape=(6, 7))
+    def __init__(self, shape=(6, 7)):
+        super().__init__(shape=shape)
     
     @property
     def available_coords(self):

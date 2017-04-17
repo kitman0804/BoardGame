@@ -1,4 +1,4 @@
-from copy import deepcopy
+import copy
 from .GameBoard import GameBoard
 
 
@@ -23,6 +23,10 @@ class Core(object):
     @property
     def k(self):
         return self._k
+    
+    @property
+    def player_cycle(self):
+        return self._player_cycle
     
     @property
     def gameboard(self):
@@ -57,6 +61,13 @@ class Core(object):
     @property
     def winner(self):
         return self._winner
+    
+    @winner.setter
+    def winner(self, x):
+        if x in [None, -1] or x in self._player_cycle:
+            self._winner = x
+        else:
+            raise ValueError('No such player.')
     
     @property
     def is_ended(self):
@@ -102,4 +113,11 @@ class Core(object):
         self._winner = None
     
     def copy(self):
-        return deepcopy(self)
+        clone = type(self)(
+            m=self._m, n=self._n, k=self._k,
+            player_cycle=self._player_cycle
+        )
+        clone.gameboard = self.gameboard.copy()
+        clone.turn = self._turn
+        clone.winner = self._winner
+        return clone

@@ -16,7 +16,7 @@ class GameBoard(object):
     @array.setter
     def array(self, x):
         if isinstance(x, np.ndarray):
-            if len(x.shape) == 1:
+            if len(x.shape) == 2:
                 self._array = x
             else:
                 raise TypeError('x must be a 2D numpy.ndarray.')
@@ -122,12 +122,6 @@ class GameBoard(object):
     def place_stone(self, row, col, stone):
         self._array[row, col] = stone
     
-    def reset(self):
-        self._array = -np.ones(shape=self.shape, dtype=int)
-    
-    def copy(self):
-        return copy.deepcopy(self)
-    
     def get_lines(self, row=None, col=None):
         board_array = self.array
         m, n = board_array.shape
@@ -151,3 +145,11 @@ class GameBoard(object):
             yield np.diagonal(board_array, offset=col - row)
             # Anti-diagonal line (/) passing (row, col)
             yield np.diagonal(board_array[:, ::-1], offset=n - 1 - col - row)
+    
+    def reset(self):
+        self._array = -np.ones(shape=self.shape, dtype=int)
+    
+    def copy(self):
+        clone = type(self)(shape=self.shape)
+        clone.array = copy.deepcopy(self.array)
+        return clone
